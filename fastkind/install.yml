@@ -1,5 +1,5 @@
 ---
-- name: "Create Kind cluster with NGINX Ingress"
+- name: "Create DNS-ready Kind cluster with NGINX Ingress"
   hosts: "all"
   connection: "local"
   any_errors_fatal: true
