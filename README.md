@@ -2,10 +2,10 @@
 
 ## Usage
 
-To install Kind cluster (if not present), apply NGINX ingress manifests and DNS configuration , run the following command:
+To install Kind cluster (if not present), apply NGINX ingress manifests and DNS configuration, run the following command:
 
 ```bash
-ansible-playbook -i ../environments/<ENVIRONMENT> install.yml
+ansible-playbook -i ./environments/<ENVIRONMENT> install.yml
 ```
 
 To change the group of target hosts, edit the `apply.yml` file accordingly.
