@@ -1,7 +1,7 @@
 fastkind_manifests_and_configs_path: "/tmp"
 fastkind_kubeconfig_path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"
 
-fastkind_setup_cluster_name: "kind-local-dev"
+fastkind_setup_cluster_name: "dev-cluster"
 fastkind_setup_cluster_extra_nodes: []
 
 fastkind_configure_dns: true
