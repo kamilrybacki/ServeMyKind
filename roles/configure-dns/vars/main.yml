@@ -1,2 +1,3 @@
 _fastkind_configure_dns_dnsmasq_ip: 127.0.53.1
+_fastkind_configure_dns_dnsmasq_port: 53
 _fastkind_configure_dns_dnsmasq_network_manager_config: /etc/NetworkManager/dnsmasq.d/nm-dnsmasq-kind.conf
