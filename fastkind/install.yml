@@ -1,0 +1,17 @@
+---
+- name: "Create Kind cluster with NGINX Ingress"
+  hosts: "all"
+  connection: "local"
+  any_errors_fatal: true
+  become: true
+  tasks:
+    - ansible.builtin.include_role: { name: "ensure-tools", tasks_from: "install-all" }
+    - ansible.builtin.include_role: { name: "setup-cluster", tasks_from: "create" }
+    - ansible.builtin.include_role: { name: "configure-dns", tasks_from: "configure" }
+    - name: "Restart networking services"
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: "restarted"
+      loop:
+        - "dnsmasq"
+        - "NetworkManager"

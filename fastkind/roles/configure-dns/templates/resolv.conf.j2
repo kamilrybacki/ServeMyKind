@@ -1,0 +1,5 @@
+{%- for nameserver in old_resolv_conf_nameservers %}
+nameserver {{ nameserver }}
+{% endfor %}
+nameserver {{ _fastkind_configure_dns_dnsmasq_ip }}
+search {{ fastkind_setup_cluster_name }}.svc.cluster.local svc.cluster.local cluster.local

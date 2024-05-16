@@ -1,0 +1,2 @@
+- name: "Remove Kind Cluster"
+  ansible.builtin.command: "kind delete clusters --kubeconfig={{ k8s_kubeconfig_path }} {{ fastkind_setup_cluster_name }}"

@@ -1,0 +1,20 @@
+---
+- name: "Check host architecture"
+  ansible.builtin.command: "uname -m"
+  register: host_arch_check
+  changed_when: false
+  failed_when: false
+
+- name: "Set fact with architecture"
+  set_fact:
+    host_arch: "{{ host_arch_check.stdout }}"
+  changed_when: false
+  failed_when: false
+
+- name: "Ensure that all tools are is ready"
+  ansible.builtin.include_tasks: "install-tool.yml"
+  loop:
+    - "kind"
+    - "kubectl"
+  loop_control:
+    loop_var: tool_name

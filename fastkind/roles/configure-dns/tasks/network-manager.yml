@@ -1,0 +1,24 @@
+- name: "Check if NetworkManager is installed"
+  ansible.builtin.command: "NetworkManager --version"
+  register: network_manager_version_check
+  ignore_errors: true
+
+- name: "Install NetworkManager"
+  ansible.builtin.package:
+    name: "NetworkManager"
+    state: "present"
+  when: "network_manager_version_check.rc != 0"
+
+- name: "Check if NetworkManager is running"
+  ansible.builtin.systemd:
+    name: "NetworkManager"
+    state: "started"
+  register: network_manager_running_check
+  ignore_errors: true
+
+- name: "Enable NetworkManager service to start at boot"
+  ansible.builtin.systemd:
+    name: "NetworkManager"
+    enabled: true
+    state: "started"
+  when: "network_manager_running_check.rc != 0"

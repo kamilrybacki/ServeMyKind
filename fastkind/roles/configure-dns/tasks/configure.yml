@@ -1,0 +1,88 @@
+- name: "Ensure NetworkManager is installed and running"
+  ansible.builtin.include_tasks: "network-manager.yml"
+  when: "fastkind_configure_dns_network_manager_install"
+
+- name: "Ensure dnsmasq is installed and running"
+  ansible.builtin.include_tasks: "dnsmasq.yml"
+  when: "fastkind_configure_dns_dnsmasq_install"
+
+- name: "Check if NetworkManager uses dnsmasq"
+  ansible.builtin.shell:
+    cmd: "grep -q '^dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf"
+  register: network_manager_dnsmasq_check
+  ignore_errors: true
+
+- name: "Configure NetworkManager to use DNSMasq"
+  block:
+    - name: "Backup NetworkManager configuration"
+      ansible.builtin.copy:
+        src: "/etc/NetworkManager/NetworkManager.conf"
+        dest: "/etc/NetworkManager/NetworkManager.conf.bak"
+
+    - name: "Remove the current dns setting"
+      ansible.builtin.replace:
+        path: "/etc/NetworkManager/NetworkManager.conf"
+        regexp: "^dns=.*"
+        replace: ""
+
+    - name: "Add the dnsmasq dns setting after the [main] section"
+      ansible.builtin.shell:
+        cmd: sed -i '/^\[main\]/a dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf
+  when: "network_manager_dnsmasq_check.rc == 1"
+
+- name: "Check if NetworkManager dnsmasq configuration directory exists"
+  ansible.builtin.stat:
+    path: "/etc/NetworkManager/dnsmasq.d"
+  register: dnsmasq_conf_dir_check
+
+- name: "Create dnsmasq configuration directory"
+  ansible.builtin.file:
+    path: "/etc/NetworkManager/dnsmasq.d"
+    state: "directory"
+  when: "not dnsmasq_conf_dir_check.stat.exists"
+
+- name: "Get the {{ fastkind_setup_cluster_name }} kube-dns service info"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Service
+    namespace: kube-system
+    name: kube-dns
+    kubeconfig: "{{ k8s_kubeconfig_path }}"
+  register: fastkind_configure_dns_service_info
+
+- name: "Extract the {{ fastkind_setup_cluster_name }} kube-dns service IP"
+  set_fact:
+    fastkind_configure_dns_service_ip: "{{ fastkind_configure_dns_service_info.resources[0].spec.clusterIP }}"
+
+- name: "Create Kind cluster dnsmasq configuration file"
+  ansible.builtin.template:
+    src: "nm-dnsmasq-kind.conf.j2"
+    dest: "{{ _fastkind_configure_dns_dnsmasq_network_manager_config }}"
+
+- name: "Restart NetworkManager"
+  ansible.builtin.systemd:
+    name: "NetworkManager"
+    state: "restarted"
+
+- name: "Backup old /etc/resolv.conf"
+  ansible.builtin.copy:
+    src: "/etc/resolv.conf"
+    dest: "/etc/resolv.conf.bak"
+
+- name: "Get old nameservers"
+  ansible.builtin.shell:
+    cmd: "grep -E '^nameserver' /etc/resolv.conf | awk '{print $2}'"
+  register: old_resolv_conf_nameservers_check
+
+- name: "Store old nameservers"
+  set_fact:
+    old_resolv_conf_nameservers: "{{ old_resolv_conf_nameservers_check.stdout_lines }}"
+
+- name: "Create new /etc/resolv.conf"
+  ansible.builtin.template:
+    src: "resolv.conf.j2"
+    dest: "/etc/resolv.conf"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+    backup: "yes"

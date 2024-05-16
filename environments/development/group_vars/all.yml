@@ -1,0 +1,4 @@
+fastkind_setup_cluster_name: "kind-local-dev"
+fastkind_setup_cluster_extra_nodes: []
+
+k8s_monitoring_namespace: "monitoring"

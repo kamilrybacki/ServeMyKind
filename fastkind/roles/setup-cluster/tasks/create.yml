@@ -1,0 +1,30 @@
+---
+- name: "Check if Kind Cluster is already created"
+  ansible.builtin.command: "kind get clusters"
+  register: kind_with_ingress_setup_cluster_current_clusters_list
+  changed_when: false
+  failed_when: false
+
+- name: "Setup Kind Cluster if not created"
+  block:
+    - name: "Create Cluster config from template"
+      ansible.builtin.template:
+        src: "cluster.yml.j2"
+        dest: "{{ _kind_with_ingress_setup_cluster_config }}"
+        mode: "u=rw,g=r,o=r"
+
+    - name: "Create Kind Cluster"
+      ansible.builtin.command: "kind create cluster --config={{ _kind_with_ingress_setup_cluster_config }} --kubeconfig={{ k8s_kubeconfig_path }}"
+      register: kind_nginx_ingress_cluster_create
+      changed_when: kind_nginx_ingress_cluster_create is changed
+      failed_when: kind_nginx_ingress_cluster_create is failed
+
+    - name: "Wait for Kind Cluster to be ready"
+      ansible.builtin.command: "kubectl cluster-info --kubeconfig={{ k8s_kubeconfig_path }}"
+      register: kind_nginx_ingress_cluster_ready
+      until: kind_nginx_ingress_cluster_ready.stdout.find("is running") != -1
+  when: kind_with_ingress_setup_cluster_current_clusters_list.stdout.find(fastkind_setup_cluster_name) == -1
+
+- name: "Install NGINX Ingress Controller"
+  ansible.builtin.include_tasks: "install-ingress-nginx.yml"
+  when: kind_with_ingress_setup_cluster_ingress_type == "ingress-nginx"

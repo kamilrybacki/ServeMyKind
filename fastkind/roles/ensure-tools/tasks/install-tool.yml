@@ -1,0 +1,31 @@
+---
+- name: "Check if {{ tool_name }} is installed"
+  ansible.builtin.shell:
+    cmd: "which {{ tool_name }}"
+  check_mode: false
+  changed_when: false
+  failed_when: false
+  register: is_command_present
+
+- name: "Install {{ tool_name }} if not installed"
+  block:
+    - name: "Choose AMD URL for {{ tool_name }}"
+      set_fact:
+        tool_url: "{{ _fastkind_ensure_tools_x86_64_urls[tool_name]}}" 
+      when: host_arch == "x86_64"
+    
+    - name: "Choose ARM URL for {{ tool_name }}"
+      set_fact:
+        tool_url: "{{ _fastkind_ensure_tools_arm64_urls[tool_name] }}" 
+      when: host_arch == "aarch64"
+    
+    - name: "Download {{ tool_name }} from URL"
+      ansible.builtin.get_url:
+        url: "{{ tool_url }}"
+        dest: "/usr/local/bin/{{ tool_name }}"
+        mode: "u=rwx,g=rx,o=rx"
+        validate_certs: false
+      register: tool_download
+      changed_when: tool_download is changed
+      failed_when: tool_download is failed
+  when: is_command_present.rc != 0

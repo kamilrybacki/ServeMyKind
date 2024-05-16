@@ -1,0 +1,37 @@
+- name: "Check if there is an old /etc/resolv.conf.bak"
+  ansible.builtin.stat:
+    path: "/etc/resolv.conf.bak"
+  register: resolv_conf_bak_check
+
+- name: "Restore old /etc/resolv.conf"
+  block:
+  - name: "Copy /etc/resolv.conf.bak to /etc/resolv.conf"
+    ansible.builtin.copy:
+      src: "/etc/resolv.conf.bak"
+      dest: "/etc/resolv.conf"
+
+  - name: "Remove /etc/resolv.conf.bak"
+    ansible.builtin.file:
+      path: "/etc/resolv.conf.bak"
+      state: "absent"
+  when: "resolv_conf_bak_check.stat.exists"
+
+- name: "If not present, create new /etc/resolv.conf with Google DNS"
+  block:
+  - name: "Create /etc/resolv.conf"
+    ansible.builtin.copy:
+      content: |
+        nameserver 8.8.8.8
+        nameserver 1.1.1.1
+      dest: "/etc/resolv.conf"
+  when: "not resolv_conf_bak_check.stat.exists"
+
+- name: "Remove DNSMasq configuration file for Kind cluster"
+  ansible.builtin.file:
+    path: "{{ _fastkind_configure_dns_dnsmasq_network_manager_config }}"
+    state: "absent"
+
+- name: "Restart NetworkManager"
+  ansible.builtin.systemd:
+    name: "NetworkManager"
+    state: "restarted"

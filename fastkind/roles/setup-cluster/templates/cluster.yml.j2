@@ -1,0 +1,105 @@
+---
+kind: Cluster
+name: "{{ fastkind_setup_cluster_name }}"
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: "control-plane"
+    kubeadmConfigPatches:
+    - |
+      kind: InitConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-labels: "ingress-ready=true"
+    - |
+      ---
+      apiVersion: kubeadm.k8s.io/v1beta4
+      kind: ClusterConfiguration
+      networking:
+        dnsDomain: "{{ fastkind_setup_cluster_name | replace('-', '.') }}"
+      featureGates:
+        CoreDNS: true
+    extraPortMappings:
+    - containerPort: 80
+      hostPort: 80
+      protocol: TCP
+    - containerPort: 443
+      hostPort: 443
+      protocol: TCP
+
+{% if fastkind_setup_cluster_extra_nodes | length > 0 %}
+
+{% for node in fastkind_setup_cluster_extra_nodes %}
+
+{% set nodes = 1 %}
+{% if node.amount is defined %}
+{% set nodes = node.amount %}
+{% endif %}
+{% if node.extraMounts is defined %}
+{% set nodes = 1 %}
+{% endif %}
+{% if node.extraPortMappings is defined %}
+{% set nodes = 1 %}
+{% endif %}
+
+{% for index in range(nodes) %}
+  
+  - role: "{{ node.role }}"
+
+    {% if node.extraMounts is defined %}
+    
+    extraMounts:
+
+    {% for mount in node.extraMounts %}
+    
+    - containerPath: "{{ mount.containerPath }}"
+      hostPath: "{{ mount.hostPath }}"
+      readOnly: {{ mount.readOnly | default(false) }}
+      selinuxRelabel: {{ mount.selinuxRelabel | default(false) }}
+      propagation: "{{ mount.propagation | default(None) }}"
+    
+    {% endfor %}
+
+    {% endif %}
+
+    {% if node.extraPortMappings is defined %}
+
+    extraPortMappings:
+
+    {% for port in node.extraPortMappings %}
+    
+    - containerPort: {{ port.containerPort }}
+      hostPort: {{ port.hostPort }}
+      protocol: "{{ port.protocol | default("TCP") }}"
+      listenAddress: "{{ port.listenAddress | default("127.0.0.1") }}"
+
+    {% endfor %}
+
+    {% endif %}
+
+    {% if node.extraLabels is defined %}
+
+    labels:
+
+    {% for label in node.extraLabels %}
+
+      {{ label.name }}: {{ label.value }}
+
+    {% endfor %}
+
+    {% endif %}
+
+    kubeadmConfigPatches:
+    - |
+      kind: JoinConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          system-reserved: memory={{ node.memory }},cpu={{ node.cpu }}
+    {% if node.extraKubeadmPatches is defined %}
+      {{ node.extraKubeadmPatches | to_nice_yaml | indent(8) }}
+    {% endif %}
+
+{% endfor %}
+
+{% endfor %}
+
+{% endif %}

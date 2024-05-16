@@ -1,0 +1,27 @@
+---
+- name: "Check if dnsmasq is installed"
+  ansible.builtin.command: "dnsmasq --version"
+  register: dnsmasq_version_check
+  ignore_errors: true
+
+- name: "Install dnsmasq"
+  ansible.builtin.package:
+    name: "dnsmasq"
+    state: "present"
+  when: "dnsmasq_version_check.rc != 0"
+
+- name: "Check if dnsmasq has been masked"
+  ansible.builtin.command: "systemctl is-enabled dnsmasq"
+  register: dnsmasq_enabled_check
+  ignore_errors: true
+
+- name: "Unmask dnsmasq"
+  ansible.builtin.shell:
+    cmd: "systemctl unmask dnsmasq"
+  when: "dnsmasq_enabled_check.stdout == 'masked'"
+
+- name: "Set dnsmasq to start on boot"
+  ansible.builtin.service:
+    name: "dnsmasq"
+    enabled: true
+    state: "started"
