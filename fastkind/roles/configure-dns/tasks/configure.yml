@@ -33,7 +33,7 @@
 - name: "Check if NetworkManager dnsmasq configuration directory exists"
   ansible.builtin.stat:
     path: "/etc/NetworkManager/dnsmasq.d"
-  register: dnsmasq_conf_dir_check
+  register: "dnsmasq_conf_dir_check"
 
 - name: "Create dnsmasq configuration directory"
   ansible.builtin.file:
@@ -42,13 +42,13 @@
   when: "not dnsmasq_conf_dir_check.stat.exists"
 
 - name: "Get the {{ fastkind_setup_cluster_name }} kube-dns service info"
-  kubernetes.core.fastkind_info:
-    api_version: v1
-    kind: Service
-    namespace: kube-system
-    name: kube-dns
+  kubernetes.core.k8s_info:
+    api_version: "v1"
+    kind: "Service"
+    namespace: "kube-system"
+    name: "kube-dns"
     kubeconfig: "{{ fastkind_kubeconfig_path }}"
-  register: fastkind_configure_dns_service_info
+  register: "fastkind_configure_dns_service_info"
 
 - name: "Extract the {{ fastkind_setup_cluster_name }} kube-dns service IP"
   set_fact:
@@ -69,14 +69,14 @@
     src: "/etc/resolv.conf"
     dest: "/etc/resolv.conf.bak"
 
-- name: "Get old nameservers"
+- name: "Get current /etc/resolv.conf"
   ansible.builtin.shell:
-    cmd: "grep -E '^nameserver' /etc/resolv.conf | awk '{print $2}'"
-  register: old_resolv_conf_nameservers_check
+    cmd: "cat /etc/resolv.conf"
+  register: _fastkind_configure_dns_current_resolv_conf
 
-- name: "Store old nameservers"
+- name: "Extract current /etc/resolv.conf contents"
   set_fact:
-    old_resolv_conf_nameservers: "{{ old_resolv_conf_nameservers_check.stdout_lines }}"
+    _fastkind_configure_dns_current_resolv_conf_contents: "{{ _fastkind_configure_dns_current_resolv_conf.stdout }}"
 
 - name: "Create new /etc/resolv.conf"
   ansible.builtin.template:
