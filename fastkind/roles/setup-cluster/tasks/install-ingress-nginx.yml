@@ -2,11 +2,11 @@
 - name: "Download NGINX Ingress Controller Manifest"
   ansible.builtin.get_url:
     url: "{{ _kind_with_ingress_setup_cluster_nginx_manifest_url }}"
-    dest: "{{ k8s_manifests_and_configs_path }}/ingress-nginx-deploy.yaml"
+    dest: "{{ fastkind_manifests_and_configs_path }}/ingress-nginx-deploy.yaml"
     validate_certs: false
 
 - name: "Apply NGINX Ingress Controller Manifest"
   kubernetes.core.k8s:
-    kubeconfig: "{{ k8s_kubeconfig_path }}"
-    src: "{{ k8s_manifests_and_configs_path }}/ingress-nginx-deploy.yaml"
+    kubeconfig: "{{ fastkind_kubeconfig_path }}"
+    src: "{{ fastkind_manifests_and_configs_path }}/ingress-nginx-deploy.yaml"
     state: "present"

@@ -1,7 +1,7 @@
 home:
   hosts:
     localhost:
-      k8s_manifests_and_configs_path: "/tmp"
-      k8s_kubeconfig_path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"
+      fastkind_manifests_and_configs_path: "/tmp"
+      fastkind_kubeconfig_path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"
       ansible_connection: local
       ansible_python_interpreter: "{{ lookup('ansible.builtin.env', 'HOME') }}/.pyenv/shims/python"

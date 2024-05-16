@@ -42,12 +42,12 @@
   when: "not dnsmasq_conf_dir_check.stat.exists"
 
 - name: "Get the {{ fastkind_setup_cluster_name }} kube-dns service info"
-  kubernetes.core.k8s_info:
+  kubernetes.core.fastkind_info:
     api_version: v1
     kind: Service
     namespace: kube-system
     name: kube-dns
-    kubeconfig: "{{ k8s_kubeconfig_path }}"
+    kubeconfig: "{{ fastkind_kubeconfig_path }}"
   register: fastkind_configure_dns_service_info
 
 - name: "Extract the {{ fastkind_setup_cluster_name }} kube-dns service IP"
