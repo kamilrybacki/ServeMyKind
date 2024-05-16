@@ -32,6 +32,8 @@ As default, the cluster will be created with one node of the `control-plane` rol
 These variables are to be defined in the `environments/<ENVIRONMENT>/group_vars/<group_name>.yml` file:
 
 * `fastkind_setup_cluster_name` - cluster name suffix (default: `"kind-local"`), used to generate the cluster domain by substituting dashes with dots eg. `kind-local` -> `kind.local`
+* (*optional*) `fastkind_manifests_and_configs_path` - the path where auxiliary files e.g. Jinja2 templates will be rendered to **on host machine** that will be applying manifests to a K8s cluster (default: `"/tmp"`)
+* (*optional*) `fastkind_kubeconfig_path` - path to Kubeconfig **on the host machine** to be used i.e. where the cluster entry/context will be added (default: `"{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"`)
 * (*optional*) `fastkind_setup_cluster_extra_nodes` - definition of extra nodes (default: `[]`)
   Each node is defined as a dictionary with the following keys:
   * `role` - node role (available: `"worker"`, `"control-plane"`)
@@ -54,7 +56,8 @@ These variables are to be defined in the `environments/<ENVIRONMENT>/group_vars/
     * (*optional*) `protocol` - protocol to use (default: `"TCP"`)
   * (*optional*) `extraKubeadmPatches` - list of extra kubeadm patches to apply to the node (default: `[]`)
 * (*optional*) `kind_with_ingress_setup_cluster_ingress_type` - type of the ingress controller to deploy (default: `"ingress-nginx"`)
-* (*optional*) `fastkind_configure_dns_network_manager_install` - whether to install NetworkManager (default: `false`)
-* (*optional*) `fastkind_configure_dns_dnsmasq_install` - whether to install dnsmasq (default: `false`)
+* (*optional*) `fastkind_configure_dns` - whether to configure DNS for the cluster on host machine (default: `true`)
+* (*optional*) `fastkind_configure_dns_network_manager_install` - whether to install NetworkManager (default: `true`)
+* (*optional*) `fastkind_configure_dns_dnsmasq_install` - whether to install dnsmasq (default: `true`)
 
 **Important**: if for any node type fields `extraMounts` and/or `extraPortMappings` are defined, the `amount` field is automatically set to `1`, even if its value is specified by the user!

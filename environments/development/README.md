@@ -9,15 +9,17 @@ For connection with the local cluster, the `ansible_connection` variable is expl
 
 ## Variables
 
-These following variables are used by playbooks connected to operations on Kubernetes clusters.
+The following, non-default settings are used for the `development` environment:
 
-### Global variables
+* `fastkind_manifests_and_configs_path`: "/tmp"
+* `fastkind_kubeconfig_path`: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"
+* `fastkind_setup_cluster_name`: `"kind-local-dev"`
+* `fastkind_configure_dns`: `true`
+* `fastkind_configure_dns_network_manager_install`: `false`
+* `fastkind_configure_dns_dnsmasq_install`: `false`
 
-These variables are shared by **all playbooks** and **all environments**
-since they are used to configure the connection to the Kubernetes cluster
-i.e. **host machine** configuration that communicates with K8s API.
+The following variables are defined in the `inventory.yml` file, specific to the case of Python virtual environments managed with `pyenv`.
+If virtual environments are managed differently, these variables should be adjusted accordingly (or removed):
 
-They are to be defined in the `inventory.yml` file.
-
-* `fastkind_manifests_and_configs_path` - the path where auxiliary files e.g. Jinja2 templates will be rendered to **on host machine** that will be applying manifests to a K8s cluster (default: `"/tmp"`)
-* `fastkind_kubeconfig_path` - path to Kubeconfig **on the host machine** to be used i.e. where the cluster entry/context will be added (default: `"{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"`)
+* `ansible_connection`: `local`
+* `ansible_python_interpreter`: "{{ lookup('ansible.builtin.env', 'HOME') }}/.pyenv/shims/python"

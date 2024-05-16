@@ -1,2 +1,3 @@
-fastkind_configure_dns_network_manager_install: false
-fastkind_configure_dns_dnsmasq_install: false
+fastkind_configure_dns: true
+fastkind_configure_dns_network_manager_install: true
+fastkind_configure_dns_dnsmasq_install: true
