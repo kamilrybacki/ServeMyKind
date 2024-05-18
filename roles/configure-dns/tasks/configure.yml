@@ -28,3 +28,39 @@
   ansible.builtin.systemd:
     name: "NetworkManager"
     state: "restarted"
+
+- name: "Get current Corefile stored in ConfigMap"
+  kubernetes.core.k8s_info:
+    api_version: "v1"
+    kind: "ConfigMap"
+    namespace: "kube-system"
+    name: "coredns"
+    kubeconfig: "{{ fastkind_kubeconfig_path }}"
+  register: "fastkind_configure_dns_corefile_info"
+
+- name: "Adjust CoreDNS Corefile"
+  block:
+    - name: "Extract the current Corefile stored in ConfigMap"
+      set_fact:
+        fastkind_configure_dns_corefile: "{{ fastkind_configure_dns_corefile_info.resources[0].data.Corefile }}"
+
+    - name: "Change the domain from .cluster.local to .{{ fastkind_setup_cluster_name | replace('-', '.') }}"
+      set_fact:
+        fastkind_configure_dns_corefile: "{{ fastkind_configure_dns_corefile | regex_replace('cluster.local', fastkind_setup_cluster_name | replace('-', '.')) }}"
+
+    - name: "Update Corefile stored in ConfigMap"
+      kubernetes.core.k8s:
+        definition:
+          apiVersion: "v1"
+          kind: "ConfigMap"
+          metadata:
+            name: "coredns"
+            namespace: "kube-system"
+          data:
+            Corefile: "{{ fastkind_configure_dns_corefile }}"
+        kubeconfig: "{{ fastkind_kubeconfig_path }}"
+
+    - name: "Rollout restart CoreDNS deployment manually via kubectl"
+      ansible.builtin.command:
+        cmd: "kubectl rollout restart deployment coredns -n kube-system --kubeconfig={{ fastkind_kubeconfig_path }}"
+  when: "fastkind_configure_dns_corefile_info.resources | length > 0"
