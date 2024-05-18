@@ -24,29 +24,6 @@
     src: "nm-dnsmasq-kind.conf.j2"
     dest: "{{ _fastkind_configure_dns_dnsmasq_network_manager_config }}"
 
-- name: "Backup old /etc/resolv.conf"
-  ansible.builtin.copy:
-    src: "/etc/resolv.conf"
-    dest: "/etc/resolv.conf.bak"
-
-- name: "Get current /etc/resolv.conf"
-  ansible.builtin.shell:
-    cmd: "cat /etc/resolv.conf"
-  register: _fastkind_configure_dns_current_resolv_conf
-
-- name: "Extract current /etc/resolv.conf contents"
-  set_fact:
-    _fastkind_configure_dns_current_resolv_conf_contents: "{{ _fastkind_configure_dns_current_resolv_conf.stdout }}"
-
-- name: "Create new /etc/resolv.conf"
-  ansible.builtin.template:
-    src: "resolv.conf.j2"
-    dest: "/etc/resolv.conf"
-    mode: "0644"
-    owner: "root"
-    group: "root"
-    backup: "yes"
-
 - name: "Restart NetworkManager"
   ansible.builtin.systemd:
     name: "NetworkManager"
