@@ -7,10 +7,3 @@
   tasks:
     - ansible.builtin.include_role: { name: "setup-cluster", tasks_from: "remove" }
     - ansible.builtin.include_role: { name: "configure-dns", tasks_from: "revert" }
-    - name: "Restart networking services"
-      ansible.builtin.service:
-        name: "{{ item }}"
-        state: "restarted"
-      loop:
-        - "dnsmasq"
-        - "NetworkManager"

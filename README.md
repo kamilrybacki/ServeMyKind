@@ -1,24 +1,32 @@
 # FastKind - Kind local cluster with NGINX ingress controller and DNS configuration
 
+This Ansible playbook is designed to deploy a local Kind cluster with NGINX ingress controller and DNS configuration which allows to resolve the services by their FQDNs from the perspective of the host machine.
+
+## Requirements
+
+Tasks defined in this playbook **require sudo privileges** to be executed.
+
+For Ansible:
+
+* `kubernetes.core` collection
+
 ## Usage
 
-To install Kind cluster (if not present), apply NGINX ingress manifests and DNS configuration, run the following command:
+To install Kind cluster (if not present), apply NGINX ingress manifests and DNS configuration, and run the following command:
 
 ```bash
-ansible-playbook -i ./environments/<ENVIRONMENT> install.yml
+ansible-playbook -i ./environments/<ENVIRONMENT> install.yml --ask-become-pass
 ```
+
+**NOTE**: The `--ask-become-pass` flag is required to provide the sudo password for the host machine.
+
+After running the playbook, all current Internet connections will be disconnected for a short period due to the DNS configuration being applied by restarting the NetworkManager service.
 
 To change the group of target hosts, edit the `apply.yml` file accordingly.
 
 **The default group of target hosts is set to**: `hosts: "all"`.
 
-To remove the cluster, use the `delete.yml` playbook.
-
-## Requirements
-
-For Ansible:
-
-* `kubernetes.core` collection
+To remove the cluster, use the `uninstall.yml` playbook.
 
 ## Roles
 
