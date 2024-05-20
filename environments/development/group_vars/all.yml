@@ -1,9 +1,5 @@
+fastkind_cluster_name: "dev-cluster"
+fastkind_network: "{{ fastkind_cluster_name }}-net"
+
 fastkind_manifests_and_configs_path: "/tmp"
 fastkind_kubeconfig_path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"
-
-fastkind_setup_cluster_name: "dev-cluster"
-fastkind_setup_cluster_extra_nodes: []
-
-fastkind_configure_dns: true
-fastkind_configure_dns_network_manager_install: false
-fastkind_configure_dns_dnsmasq_install: false

@@ -1,6 +1,6 @@
 ---
 kind: Cluster
-name: "{{ fastkind_setup_cluster_name }}"
+name: "{{ fastkind_cluster_name }}"
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: "control-plane"
@@ -10,7 +10,7 @@ nodes:
       apiVersion: kubeadm.k8s.io/v1beta4
       kind: ClusterConfiguration
       networking:
-        dnsDomain: "{{ fastkind_setup_cluster_name | replace('-', '.') }}"
+        dnsDomain: "{{ fastkind_cluster_name | replace('-', '.') }}"
       featureGates:
         CoreDNS: true
     - |

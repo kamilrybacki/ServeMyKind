@@ -39,7 +39,7 @@ To remove the cluster, use the `uninstall.yml` playbook.
 As default, the cluster will be created with one node of the `control-plane` role.
 These variables are to be defined in the `environments/<ENVIRONMENT>/group_vars/<group_name>.yml` file:
 
-* `fastkind_setup_cluster_name` - cluster name suffix (default: `"kind-local"`), used to generate the cluster domain by substituting dashes with dots eg. `kind-local` -> `kind.local`
+* `fastkind_cluster_name` - cluster name suffix (default: `"kind-local"`), used to generate the cluster domain by substituting dashes with dots eg. `kind-local` -> `kind.local`
 * (*optional*) `fastkind_manifests_and_configs_path` - the path where auxiliary files e.g. Jinja2 templates will be rendered to **on host machine** that will be applying manifests to a K8s cluster (default: `"/tmp"`)
 * (*optional*) `fastkind_kubeconfig_path` - path to Kubeconfig **on the host machine** to be used i.e. where the cluster entry/context will be added (default: `"{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"`)
 * (*optional*) `fastkind_setup_cluster_extra_nodes` - definition of extra nodes (default: `[]`)

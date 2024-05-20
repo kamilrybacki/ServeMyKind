@@ -1,2 +1,6 @@
 - name: "Remove Kind Cluster"
-  ansible.builtin.command: "kind delete clusters --kubeconfig={{ fastkind_kubeconfig_path }} {{ fastkind_setup_cluster_name }}"
+  ansible.builtin.command: "kind delete clusters --kubeconfig={{ fastkind_kubeconfig_path }} {{ fastkind_cluster_name }}"
+
+- name: "Remove Docker network"
+  ansible.builtin.shell: "docker network rm {{ fastkind_network }}"
+  ignore_errors: true

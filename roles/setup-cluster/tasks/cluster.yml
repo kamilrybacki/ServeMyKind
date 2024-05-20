@@ -1,0 +1,19 @@
+---
+- name: "Create Cluster config from template"
+  ansible.builtin.template:
+    src: "cluster.yml.j2"
+    dest: "{{ _kind_with_ingress_setup_cluster_config }}"
+    mode: "u=rw,g=r,o=r"
+
+- name: "Create Kind Cluster"
+  ansible.builtin.command: "kind create cluster --config={{ _kind_with_ingress_setup_cluster_config }} --kubeconfig={{ fastkind_kubeconfig_path }}"
+  environment:
+    KIND_EXPERIMENTAL_DOCKER_NETWORK: "{{ fastkind_network }}"
+  register: kind_nginx_ingress_cluster_create
+  changed_when: kind_nginx_ingress_cluster_create is changed
+  failed_when: kind_nginx_ingress_cluster_create is failed
+
+- name: "Wait for Kind Cluster to be ready"
+  ansible.builtin.command: "kubectl cluster-info --kubeconfig={{ fastkind_kubeconfig_path }}"
+  register: kind_nginx_ingress_cluster_ready
+  until: kind_nginx_ingress_cluster_ready.stdout.find("is running") != -1

@@ -1,3 +1,5 @@
-listen-address={{ _fastkind_configure_dns_dnsmasq_ip }}
-server=/.{{ fastkind_setup_cluster_name | replace('-', '.') }}/{{ fastkind_configure_dns_service_ip }}
-port={{ _fastkind_configure_dns_dnsmasq_port }}
+listen-address=127.0.0.1
+bind-interfaces
+server=8.8.8.8
+server=8.8.4.4
+conf-dir=/etc/NetworkManager/dnsmasq.d/,*.conf

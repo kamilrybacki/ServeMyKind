@@ -1,4 +1,4 @@
-fastkind_setup_cluster_name: "kind-local"
+fastkind_cluster_name: "kind-local"
 fastkind_setup_cluster_extra_nodes: []
 
-kind_with_ingress_setup_cluster_ingress_type: "ingress-nginx"
+fastkind_ingress_type: "ingress-nginx"

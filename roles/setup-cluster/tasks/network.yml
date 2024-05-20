@@ -1,0 +1,8 @@
+---
+- name: "If Docker network doesn't exist, create it"
+  ansible.builtin.shell:
+    cmd: |
+      docker network create \
+      {{ fastkind_network }} \
+      --driver=bridge \
+      --opt com.docker.network.bridge.enable_ip_masquerade=true

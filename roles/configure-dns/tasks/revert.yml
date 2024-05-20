@@ -40,9 +40,14 @@
       dest: "/etc/resolv.conf"
   when: "not resolv_conf_bak_check.stat.exists and not nm_resolv_conf_check.stat.exists"
 
-- name: "Remove DNSMasq configuration file for Kind cluster"
+- name: "Remove main DNSMasq configuration file"
   ansible.builtin.file:
     path: "{{ _fastkind_configure_dns_dnsmasq_network_manager_config }}"
+    state: "absent"
+
+- name: "Remove Kind cluster DNSMasq configuration file"
+  ansible.builtin.file:
+    path: "{{ _fastkind_configure_dns_dnsmasq_kind_cluster_config }}"
     state: "absent"
 
 - name: "Restart NetworkManager"

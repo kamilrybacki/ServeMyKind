@@ -10,30 +10,6 @@
     state: "present"
   when: "dnsmasq_version_check.rc != 0"
 
-- name: "Check if NetworkManager uses dnsmasq"
-  ansible.builtin.shell:
-    cmd: "grep -q '^dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf"
-  register: network_manager_dnsmasq_check
-  ignore_errors: true
-
-- name: "Configure NetworkManager to use DNSMasq"
-  block:
-    - name: "Backup NetworkManager configuration"
-      ansible.builtin.copy:
-        src: "/etc/NetworkManager/NetworkManager.conf"
-        dest: "/etc/NetworkManager/NetworkManager.conf.bak"
-
-    - name: "Remove the current dns setting"
-      ansible.builtin.replace:
-        path: "/etc/NetworkManager/NetworkManager.conf"
-        regexp: "^dns=.*"
-        replace: ""
-
-    - name: "Add the dnsmasq dns setting after the [main] section"
-      ansible.builtin.shell:
-        cmd: sed -i '/^\[main\]/a dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf
-  when: "network_manager_dnsmasq_check.rc == 1"
-
 - name: "Check if NetworkManager dnsmasq configuration directory exists"
   ansible.builtin.stat:
     path: "/etc/NetworkManager/dnsmasq.d"

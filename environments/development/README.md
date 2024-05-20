@@ -13,7 +13,7 @@ The following, non-default settings are used for the `development` environment:
 
 * `fastkind_manifests_and_configs_path`: "/tmp"
 * `fastkind_kubeconfig_path`: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"
-* `fastkind_setup_cluster_name`: `"kind-local-dev"`
+* `fastkind_cluster_name`: `"kind-local-dev"`
 * `fastkind_configure_dns`: `true`
 * `fastkind_configure_dns_network_manager_install`: `false`
 * `fastkind_configure_dns_dnsmasq_install`: `false`

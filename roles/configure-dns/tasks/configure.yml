@@ -6,7 +6,31 @@
   ansible.builtin.include_tasks: "dnsmasq.yml"
   when: "fastkind_configure_dns_dnsmasq_install"
 
-- name: "Get the {{ fastkind_setup_cluster_name }} kube-dns service info"
+- name: "Check if NetworkManager uses dnsmasq"
+  ansible.builtin.shell:
+    cmd: "grep -q '^dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf"
+  register: network_manager_dnsmasq_check
+  ignore_errors: true
+
+- name: "Configure NetworkManager to use DNSMasq"
+  block:
+    - name: "Backup NetworkManager configuration"
+      ansible.builtin.copy:
+        src: "/etc/NetworkManager/NetworkManager.conf"
+        dest: "/etc/NetworkManager/NetworkManager.conf.bak"
+
+    - name: "Remove the current dns setting"
+      ansible.builtin.replace:
+        path: "/etc/NetworkManager/NetworkManager.conf"
+        regexp: "^dns=.*"
+        replace: ""
+
+    - name: "Add the dnsmasq dns setting after the [main] section"
+      ansible.builtin.shell:
+        cmd: sed -i '/^\[main\]/a dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf
+  when: "network_manager_dnsmasq_check.rc == 1"
+
+- name: "Get the {{ fastkind_cluster_name }} kube-dns service info"
   kubernetes.core.k8s_info:
     api_version: "v1"
     kind: "Service"
@@ -15,7 +39,7 @@
     kubeconfig: "{{ fastkind_kubeconfig_path }}"
   register: "fastkind_configure_dns_service_info"
 
-- name: "Extract the {{ fastkind_setup_cluster_name }} kube-dns service IP"
+- name: "Extract the {{ fastkind_cluster_name }} kube-dns service IP"
   set_fact:
     fastkind_configure_dns_service_ip: "{{ fastkind_configure_dns_service_info.resources[0].spec.clusterIP }}"
 
@@ -23,6 +47,12 @@
   ansible.builtin.template:
     src: "nm-dnsmasq-kind.conf.j2"
     dest: "{{ _fastkind_configure_dns_dnsmasq_network_manager_config }}"
+
+- name: "Add additional config inside /etc/NetworkManager/dnsmasq.d"
+  ansible.builtin.copy:
+    content: | 
+      address=/{{ fastkind_cluster_name | replace('-', '.') }}/{{ fastkind_configure_dns_service_ip }}
+    dest: "{{_fastkind_configure_dns_dnsmasq_kind_cluster_config }}"
 
 - name: "Restart NetworkManager"
   ansible.builtin.systemd:
@@ -44,9 +74,9 @@
       set_fact:
         fastkind_configure_dns_corefile: "{{ fastkind_configure_dns_corefile_info.resources[0].data.Corefile }}"
 
-    - name: "Change the domain from .cluster.local to .{{ fastkind_setup_cluster_name | replace('-', '.') }}"
+    - name: "Change the domain from .cluster.local to .{{ fastkind_cluster_name | replace('-', '.') }}"
       set_fact:
-        fastkind_configure_dns_corefile: "{{ fastkind_configure_dns_corefile | regex_replace('cluster.local', fastkind_setup_cluster_name | replace('-', '.')) }}"
+        fastkind_configure_dns_corefile: "{{ fastkind_configure_dns_corefile | regex_replace('cluster.local', fastkind_cluster_name | replace('-', '.')) }}"
 
     - name: "Update Corefile stored in ConfigMap"
       kubernetes.core.k8s:

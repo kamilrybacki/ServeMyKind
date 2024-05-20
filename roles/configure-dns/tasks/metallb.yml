@@ -1,0 +1,20 @@
+- name: "Get Kind CIDR for MetalLB information via inspecting the Kind cluster network"
+  command: "docker network inspect {{ fastkind_network }}"
+  register: "fastkind_configure_dns_kind_network_info"
+  changed_when: false
+
+- name: "Extract the Kind CIDR for MetalLB"
+  set_fact:
+    fastkind_configure_dns_kind_cidr: "{{ fastkind_configure_dns_kind_network_info.stdout | from_json | json_query('[].IPAM.Config[?Subnet].Subnet') | first }}"
+
+- name: "Create IP adresses range for MetalLB"
+  set_fact:
+    fastkind_configure_dns_metallb_ip_start: "{{ fastkind_configure_dns_kind_cidr | regex_replace('0.0/16', '255.200') }}"
+    fastkind_configure_dns_metallb_ip_end: "{{ fastkind_configure_dns_kind_cidr | regex_replace('0.0/16', '255.250') }}"
+    fastkind_configure_dns_metallb_ip_range: "{{ fastkind_configure_dns_metallb_ip_start }}-{{ fastkind_configure_dns_metallb_ip_end }}"
+  when: fastkind_configure_dns_kind_network_info.stdout.find("kind") != -1
+
+- name: "Create values file for MetalLB Helm chart"
+  ansible.builtin.template:
+    src: "metallb-values.yml.j2"
+    dest: "{{ fastkind_manifests_and_configs_path }}/metallb-values.yml"
