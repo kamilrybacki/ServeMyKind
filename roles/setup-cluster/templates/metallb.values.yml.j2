@@ -1,0 +1,6 @@
+configInline:
+  address-pools:
+  - name: default
+    protocol: layer2
+    addresses: 
+    - {{ fastkind_setup_cluster_metallb_ip_range | replace("'", "") | replace("[","") | replace("]","")}}

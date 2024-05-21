@@ -18,6 +18,9 @@
   ansible.builtin.include_tasks: "cluster.yml"
   when: fastkind_current_clusters_list.stdout.find(fastkind_cluster_name) == -1
 
+- name: "Install MetalLB"
+  ansible.builtin.include_tasks: "metallb.yml"
+
 - name: "Install NGINX Ingress Controller"
   ansible.builtin.include_tasks: "install-ingress-nginx.yml"
   when: fastkind_ingress_type == "ingress-nginx"
