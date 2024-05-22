@@ -1,0 +1,28 @@
+---
+- name: "Check if NGINX Ingress Controller Helm Chart Repository is added"
+  ansible.builtin.command: "helm repo list"
+  register: serve_my_kind_ingress_nginx_repo_check
+  changed_when: false
+  failed_when: false
+
+- name: "Add NGINX Ingress Controller Helm Chart Repository if not available"
+  ansible.builtin.command: "helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx"
+  when: "serve_my_kind_ingress_nginx_repo_check.stdout.find('ingress-nginx') == -1"
+
+- name: "Render values file for NGINX Ingress Controller"
+  ansible.builtin.template:
+    src: "ingress-nginx.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/ingress-nginx.yml"
+
+- name: "Install NGINX Ingress Controller via Helm Chart"
+  kubernetes.core.helm:
+    name: "ingress-nginx"
+    chart_ref: "ingress-nginx/ingress-nginx"
+    release_namespace: "{{ serve_my_kind_system_namespace }}"
+    create_namespace: true
+    state: "present"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    wait: true
+    wait_timeout: "{{ _serve_my_kind_k8s_wait_ingress_timeout }}"
+    values_files:
+      - "{{ serve_my_kind_manifests_and_configs_path }}/ingress-nginx.yml"

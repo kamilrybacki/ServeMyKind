@@ -1,3 +1,2 @@
-serve_my_kind_configure_dns: true
-serve_my_kind_configure_dns_network_manager_install: true
-serve_my_kind_configure_dns_dnsmasq_install: true
+serve_my_kind_configure_dns_network_manager_install: false
+serve_my_kind_configure_dns_dnsmasq_install: false

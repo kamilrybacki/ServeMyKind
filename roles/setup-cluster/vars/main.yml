@@ -1,3 +1,4 @@
-_kind_with_ingress_setup_cluster_config: "{{ serve_my_kind_manifests_and_configs_path }}/kind-cluster.yml"
+_serve_my_kind_k8s_wait_ingress_timeout: "60s"
 
-_kind_with_ingress_setup_cluster_nginx_manifest_url: "https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml"
+_serve_my_kind_k8s_wait_load_balancer_timeout: "60s"
+_serve_my_kind_k8s_wait_load_balancer_pools_timeout: 60

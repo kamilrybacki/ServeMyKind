@@ -1,6 +1,0 @@
-configInline:
-  address-pools:
-  - name: default
-    protocol: layer2
-    addresses: 
-    - {{ serve_my_kind_setup_cluster_metallb_ip_range | replace("'", "") | replace("[","") | replace("]","")}}

@@ -2,11 +2,11 @@
 - name: "Create Cluster config from template"
   ansible.builtin.template:
     src: "cluster.yml.j2"
-    dest: "{{ _kind_with_ingress_setup_cluster_config }}"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/kind-cluster.yml"
     mode: "u=rw,g=r,o=r"
 
 - name: "Create Kind Cluster"
-  ansible.builtin.command: "kind create cluster --config={{ _kind_with_ingress_setup_cluster_config }} --kubeconfig={{ serve_my_kind_kubeconfig_path }}"
+  ansible.builtin.command: "kind create cluster --config={{ serve_my_kind_manifests_and_configs_path }}/kind-cluster.yml --kubeconfig={{ serve_my_kind_kubeconfig_path }}"
   environment:
     KIND_EXPERIMENTAL_DOCKER_NETWORK: "{{ serve_my_kind_network }}"
   register: kind_nginx_ingress_cluster_create

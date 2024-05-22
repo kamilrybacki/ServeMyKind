@@ -22,5 +22,5 @@
   ansible.builtin.include_tasks: "metallb.yml"
 
 - name: "Install NGINX Ingress Controller"
-  ansible.builtin.include_tasks: "install-ingress-nginx.yml"
+  ansible.builtin.include_tasks: "ingress-nginx.yml"
   when: serve_my_kind_ingress_type == "ingress-nginx"

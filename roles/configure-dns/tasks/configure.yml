@@ -30,18 +30,14 @@
         cmd: sed -i '/^\[main\]/a dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf
   when: "network_manager_dnsmasq_check.rc == 1"
 
-- name: "Get the {{ serve_my_kind_cluster_name }} kube-dns service info"
-  kubernetes.core.k8s_info:
-    api_version: "v1"
-    kind: "Service"
-    namespace: "kube-system"
-    name: "kube-dns"
-    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
-  register: "serve_my_kind_configure_dns_service_info"
+- name: "Get the {{ serve_my_kind_cluster_name }} MetalLB LoadBalancer IP" 
+  ansible.builtin.command:
+    cmd: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get svc -n {{ serve_my_kind_system_namespace }} {{ serve_my_kind_cluster_name }}-ingress-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"
+  register: "serve_my_kind_configure_dns_load_balancer_ip_check"
 
 - name: "Extract the {{ serve_my_kind_cluster_name }} kube-dns service IP"
   set_fact:
-    serve_my_kind_configure_dns_service_ip: "{{ serve_my_kind_configure_dns_service_info.resources[0].spec.clusterIP }}"
+    serve_my_kind_configure_dns_service_ip: "{{ serve_my_kind_configure_dns_load_balancer_ip_check.stdout }}" 
 
 - name: "Create Kind cluster dnsmasq configuration file"
   ansible.builtin.template:

@@ -11,5 +11,6 @@
       docker network create \
       {{ serve_my_kind_network }} \
       --driver=bridge \
-      --opt com.docker.network.bridge.enable_ip_masquerade=true
+      --opt com.docker.network.bridge.enable_ip_masquerade=true \
+      --subnet={{ serve_my_kind_network_cidr }}
   when: "network_inspect.rc != 0"
