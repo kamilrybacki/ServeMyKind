@@ -26,3 +26,16 @@
     wait_timeout: "{{ _serve_my_kind_k8s_wait_ingress_timeout }}"
     values_files:
       - "{{ serve_my_kind_manifests_and_configs_path }}/ingress-nginx.yml"
+
+- name: "Edit KubeProxy ConfigMap to enable IPVS mode"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    definition:
+      apiVersion: "kubeproxy.config.k8s.io/v1alpha1"
+      kind: "KubeProxyConfiguration"
+      mode: "ipvs"
+      ipvs:
+        strictARP: true
+    name: "kube-proxy"
+    namespace: "kube-system"
+    state: "present"
