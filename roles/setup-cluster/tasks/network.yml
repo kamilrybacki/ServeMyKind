@@ -1,7 +1,7 @@
 ---
 - name: "Check if Docker network exists"
   ansible.builtin.shell:
-    cmd: "docker network inspect {{ fastkind_network }}"
+    cmd: "docker network inspect {{ serve_my_kind_network }}"
   register: network_inspect
   ignore_errors: true
 
@@ -9,7 +9,7 @@
   ansible.builtin.shell:
     cmd: |
       docker network create \
-      {{ fastkind_network }} \
+      {{ serve_my_kind_network }} \
       --driver=bridge \
       --opt com.docker.network.bridge.enable_ip_masquerade=true
   when: "network_inspect.rc != 0"

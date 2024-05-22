@@ -1,28 +1,28 @@
 - name: "Get Kind CIDR for MetalLB information via inspecting the Kind cluster network"
-  command: "docker network inspect {{ fastkind_network }}"
-  register: "fastkind_setup_cluster_kind_network_info"
+  command: "docker network inspect {{ serve_my_kind_network }}"
+  register: "serve_my_kind_setup_cluster_kind_network_info"
   changed_when: false
 
 - name: "Check if jmespath is installed"
   ansible.builtin.command: "pip3 show jmespath"
-  register: "fastkind_setup_cluster_jmespath_check"
+  register: "serve_my_kind_setup_cluster_jmespath_check"
   failed_when: false
   changed_when: false
 
 - name: "Install jmespath if not available"
   ansible.builtin.command:
     cmd: "pip3 install jmespath"
-  when: "fastkind_setup_cluster_jmespath_check.rc != 0"
+  when: "serve_my_kind_setup_cluster_jmespath_check.rc != 0"
 
 - name: "Extract the Kind CIDR for MetalLB"
   set_fact:
-    fastkind_setup_cluster_kind_cidr: "{{ fastkind_setup_cluster_kind_network_info.stdout | from_json | json_query('[].IPAM.Config[?Subnet].Subnet') | first }}"
+    serve_my_kind_setup_cluster_kind_cidr: "{{ serve_my_kind_setup_cluster_kind_network_info.stdout | from_json | json_query('[].IPAM.Config[?Subnet].Subnet') | first }}"
 
 - name: "Create IP adresses range for MetalLB"
   set_fact:
-    fastkind_setup_cluster_metallb_ip_range: "{{ fastkind_setup_cluster_kind_cidr | regex_replace('0.0/16', '255.200') }}-{{ fastkind_setup_cluster_kind_cidr | regex_replace('0.0/16', '255.250') }}"
+    serve_my_kind_setup_cluster_metallb_ip_range: "{{ serve_my_kind_setup_cluster_kind_cidr | regex_replace('0.0/16', '255.200') }}-{{ serve_my_kind_setup_cluster_kind_cidr | regex_replace('0.0/16', '255.250') }}"
 
 - name: "Create values file for MetalLB Helm chart"
   ansible.builtin.template:
     src: "metallb.values.yml.j2"
-    dest: "{{ fastkind_manifests_and_configs_path }}/metallb-values.yml"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/metallb-values.yml"

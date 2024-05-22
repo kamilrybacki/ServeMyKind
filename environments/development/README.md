@@ -11,12 +11,12 @@ For connection with the local cluster, the `ansible_connection` variable is expl
 
 The following, non-default settings are used for the `development` environment:
 
-* `fastkind_manifests_and_configs_path`: "/tmp"
-* `fastkind_kubeconfig_path`: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"
-* `fastkind_cluster_name`: `"kind-local-dev"`
-* `fastkind_configure_dns`: `true`
-* `fastkind_configure_dns_network_manager_install`: `false`
-* `fastkind_configure_dns_dnsmasq_install`: `false`
+* `serve_my_kind_manifests_and_configs_path`: "/tmp"
+* `serve_my_kind_kubeconfig_path`: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"
+* `serve_my_kind_cluster_name`: `"kind-local-dev"`
+* `serve_my_kind_configure_dns`: `true`
+* `serve_my_kind_configure_dns_network_manager_install`: `false`
+* `serve_my_kind_configure_dns_dnsmasq_install`: `false`
 
 The following variables are defined in the `inventory.yml` file, specific to the case of Python virtual environments managed with `pyenv`.
 If virtual environments are managed differently, these variables should be adjusted accordingly (or removed):
