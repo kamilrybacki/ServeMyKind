@@ -1,0 +1,23 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "pool"
+spec:
+  cidrs:
+  - cidr: "{{ serve_my_kind_setup_cluster_kind_network_info.stdout | from_json | json_query('[].IPAM.Config[?Subnet].Subnet') | first }}"
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata: null
+  name: l2-{{ serve_my_kind_cluster_name }}-announcement
+  namespace: Cilium
+spec:
+  nodeSelector:
+    matchExpressions:
+    matchExpressions:
+    - key: node-role.kubernetes.io/control-plane
+      operator: DoesNotExist
+  interfaces:
+    - eth0
+  externalIPs: true
+  loadBalancerIPs: true

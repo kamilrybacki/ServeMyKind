@@ -43,14 +43,12 @@
   register: "serve_my_kind_setup_cluster_kind_network_info"
   changed_when: false
 
-- name: "Create Cilium IP Pool"
+- name: "Render Cilium L2 resources manifests"
+  ansible.builtin.template:
+    src: "cilium-l2-resources.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/cilium-l2-resources.yml"
+
+- name: "Apply Cilium L2 resources manifests"
   kubernetes.core.k8s:
+    definition: "{{ lookup('template', '{{ serve_my_kind_manifests_and_configs_path }}/cilium-l2-resources.yml') }}"
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
-    definition:
-      apiVersion: "cilium.io/v2alpha1"
-      kind: CiliumLoadBalancerIPPool
-      metadata:
-        name: "pool"
-      spec:
-        cidrs:
-        - cidr: "{{ serve_my_kind_setup_cluster_kind_network_info.stdout | from_json | json_query('[].IPAM.Config[?Subnet].Subnet') | first }}"

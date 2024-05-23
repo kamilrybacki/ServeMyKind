@@ -22,7 +22,7 @@
 
     - name: "Install Cilium"
       ansible.builtin.include_tasks: "cilium.yml"
-
+    
     - name: "Install NGINX Ingress Controller"
       ansible.builtin.include_tasks: "ingress-nginx.yml"
       when: serve_my_kind_ingress_type == "ingress-nginx"

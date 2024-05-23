@@ -74,3 +74,4 @@ These variables are to be defined in the `environments/<ENVIRONMENT>/group_vars/
 
 * [Using dnsmasq for local Kind clusters](https://medium.com/@charled.breteche/using-dnsmasq-with-a-local-kind-clusters-9a27c8987073)
 * [Kind cluster with Cilium and no kube-proxy](https://medium.com/@charled.breteche/kind-cluster-with-cilium-and-no-kube-proxy-c6f4d84b5a9d)
+* [Play with Cilium native routing in Kind cluster](https://medium.com/@nahelou.j/play-with-cilium-native-routing-in-kind-cluster-5a9e586a81ca)

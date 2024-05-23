@@ -12,15 +12,16 @@ _serve_my_kind_setup_cluster_dns_config: |-
     dnsDomain: "{{ serve_my_kind_cluster_name | replace('-', '.') }}"
     disableDefaultCNI: true
     kubeProxyMode: none
+_serve_my_kind_setup_cluster_coredns_config: |-
   featureGates:
-    CoreDNS: {{ serve_my_kind_use_coredns }}
+    CoreDNS: "{{ serve_my_kind_use_coredns }}"
 _serve_my_kind_setup_cluster_ipvs_strict_arp: true
 _serve_my_kind_setup_cluster_ipvs_strict_arp_config: |-
   apiVersion: kubeproxy.config.k8s.io/v1alpha1
   kind: KubeProxyConfiguration
   mode: "ipvs"
   ipvs:
-    strictARP: {{ _serve_my_kind_setup_cluster_ipvs_strict_arp }}
+    strictARP: "{{ _serve_my_kind_setup_cluster_ipvs_strict_arp }}"
 
 _serve_my_kind_setup_cluster_apiserver_host_name: "{{ serve_my_kind_cluster_name }}-control-plane"
 _serve_my_kind_setup_cluster_apiserver_host_port: 6443

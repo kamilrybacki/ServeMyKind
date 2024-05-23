@@ -14,10 +14,13 @@
     name: "ingress-nginx"
     chart_ref: "ingress-nginx/ingress-nginx"
     release_namespace: "{{ serve_my_kind_system_namespace }}"
-    create_namespace: true
     state: "present"
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
     wait: true
     wait_timeout: "{{ _serve_my_kind_setup_cluster_ingress_creation_timeout }}"
     values:
       fullnameOverride: "{{ serve_my_kind_cluster_name }}-ingress"
+      controller:
+        service:
+          externalTrafficPolicy: Local
+          type: LoadBalancer

@@ -5,7 +5,8 @@ serve_my_kind_setup_cluster_hubble_enabled: true
 serve_my_kind_setup_cluster_hubble_relay_enabled: true
 serve_my_kind_setup_cluster_hubble_ui_enabled: true
 
-serve_my_kind_load_balancer_l2_advertisement_name: "{{ serve_my_kind_cluster_name }}-l2-advertisement"
-serve_my_kind_load_balancer_address_pool_name: "{{ serve_my_kind_cluster_name }}-default-pool"
+serve_my_kind_setup_cluster_enable_strict_arp: false
+serve_my_kind_setup_cluster_load_balancer_l2_advertisement_name: "{{ serve_my_kind_cluster_name }}-l2-advertisement"
+serve_my_kind_setup_cluster_load_balancer_address_pool_name: "{{ serve_my_kind_cluster_name }}-default-pool"
 
 serve_my_kind_ingress_type: "ingress-nginx"

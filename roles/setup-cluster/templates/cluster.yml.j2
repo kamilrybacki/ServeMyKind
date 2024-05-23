@@ -9,8 +9,18 @@ nodes:
       {{ _serve_my_kind_setup_cluster_ingress_enabled_config | indent(6) }}
     - |
       {{ _serve_my_kind_setup_cluster_dns_config | indent(6) }}
+
+    {% if serve_my_kind_use_coredns %}
+
+      {{ _serve_my_kind_setup_cluster_coredns_config | indent(6) }}
+
+    {% endif %}
+
+    {% if serve_my_kind_setup_cluster_enable_strict_arp %}
     - |
       {{ _serve_my_kind_setup_cluster_ipvs_strict_arp_config | indent(6) }}
+    {% endif %}
+
     extraPortMappings:
     - containerPort: 80
       hostPort: 80
