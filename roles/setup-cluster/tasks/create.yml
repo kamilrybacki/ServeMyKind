@@ -16,7 +16,7 @@
       changed_when: false
       failed_when: false
 
-    - name: "Create Kind cluster"
+    - name: "Setup and configure Kind cluster"
       ansible.builtin.include_tasks: "cluster.yml"
       when: serve_my_kind_current_clusters_list.stdout.find(serve_my_kind_cluster_name) == -1
 

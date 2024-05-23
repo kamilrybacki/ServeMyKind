@@ -31,9 +31,15 @@ nodes:
       protocol: TCP
       listenAddress: 127.0.0.1
 
-{% if serve_my_kind_setup_cluster_extra_nodes | length > 0 %}
+{% for index in range(serve_my_kind_setup_cluster_normal_workers) %}
 
-{% for node in serve_my_kind_setup_cluster_extra_nodes %}
+  - role: "worker"
+
+{% endfor %}
+
+{% if serve_my_kind_setup_cluster_special_nodes | length > 0 %}
+
+{% for node in serve_my_kind_setup_cluster_special_nodes %}
 
 {% set nodes = 1 %}
 {% if node.amount is defined %}

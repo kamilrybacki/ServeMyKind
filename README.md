@@ -42,7 +42,7 @@ These variables are to be defined in the `environments/<ENVIRONMENT>/group_vars/
 * `serve_my_kind_cluster_name` - cluster name suffix (default: `"kind-local"`), used to generate the cluster domain by substituting dashes with dots eg. `kind-local` -> `kind.local`
 * (*optional*) `serve_my_kind_manifests_and_configs_path` - the path where auxiliary files e.g. Jinja2 templates will be rendered to **on host machine** that will be applying manifests to a K8s cluster (default: `"/tmp"`)
 * (*optional*) `serve_my_kind_kubeconfig_path` - path to Kubeconfig **on the host machine** to be used i.e. where the cluster entry/context will be added (default: `"{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"`)
-* (*optional*) `serve_my_kind_setup_cluster_extra_nodes` - definition of extra nodes (default: `[]`)
+* (*optional*) `serve_my_kind_setup_cluster_special_nodes` - definition of extra nodes (default: `[]`)
   Each node is defined as a dictionary with the following keys:
   * `role` - node role (available: `"worker"`, `"control-plane"`)
   * `memory` - human-readable memory size (e.g. `"1Gi"`)

@@ -43,12 +43,38 @@
   register: "serve_my_kind_setup_cluster_kind_network_info"
   changed_when: false
 
-- name: "Render Cilium L2 resources manifests"
-  ansible.builtin.template:
-    src: "cilium-l2-resources.yml.j2"
-    dest: "{{ serve_my_kind_manifests_and_configs_path }}/cilium-l2-resources.yml"
-
-- name: "Apply Cilium L2 resources manifests"
+- name: "Create Cilium LB IP Pool for {{ serve_my_kind_network }} network"
   kubernetes.core.k8s:
-    definition: "{{ lookup('template', '{{ serve_my_kind_manifests_and_configs_path }}/cilium-l2-resources.yml') }}"
+    definition:
+      apiVersion: "cilium.io/v2alpha1"
+      kind: "CiliumLoadBalancerIPPool"
+      metadata:
+        name: "{{ serve_my_kind_network }}-pool"
+        namespace: "{{ serve_my_kind_system_namespace }}"
+      spec:
+        cidrs:
+          - cidr: "{{ serve_my_kind_setup_cluster_kind_network_info.stdout | from_json | json_query('[].IPAM.Config[?Subnet].Subnet') | first }}"
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    state: "present"
+    wait: true
+
+- name: "Create Cilium L2 Announcement Policy"
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: "cilium.io/v2alpha1"
+      kind: "CiliumL2AnnouncementPolicy"
+      metadata:
+        name: "l2-{{ serve_my_kind_cluster_name }}-announcement"
+        namespace: "{{ serve_my_kind_system_namespace }}"
+      spec:
+        nodeSelector:
+          matchExpressions:
+            - key: "node-role.kubernetes.io/control-plane"
+              operator: "DoesNotExist"
+        interfaces:
+          - "eth0"
+        externalIPs: true
+        loadBalancerIPs: true
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    state: "present"
+    wait: true
