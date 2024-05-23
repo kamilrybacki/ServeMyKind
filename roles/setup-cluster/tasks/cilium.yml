@@ -1,0 +1,38 @@
+- name: "Check if Cilium Helm repo is added"
+  kubernetes.core.helm_repository:
+    name: "cilium"
+    state: "present"
+    repo_url: "https://helm.cilium.io/"
+  register: "serve_my_kind_setup_cluster_cilium_repo_check"
+
+- name: "Add Cilium Helm repo if not available"
+  kubernetes.core.helm_repository:
+    name: "cilium"
+    state: "present"
+    repo_url: "https://helm.cilium.io/"
+  when: "serve_my_kind_setup_cluster_cilium_repo_check is failed"
+
+- name: "Get the Kubernetes service host IP"
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system get pod {{ _serve_my_kind_setup_cluster_apiserver_pod_name }} -o=jsonpath="{.status.hostIP}" 
+  register: serve_my_kind_setup_cluster_k8s_service_host
+
+- name: "Set the Kubernetes service host IP"
+  set_fact:
+    _serve_my_kind_setup_cluster_k8s_service_host: "{{ serve_my_kind_setup_cluster_k8s_service_host.stdout }}"
+
+- name: "Render Cilium Helm values file"
+  ansible.builtin.template:
+    src: "cilium.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/cilium.yml"
+
+- name: "Install Cilium Helm Chart with values file"
+  kubernetes.core.helm:
+    name: "cilium"
+    chart_ref: "cilium/cilium"
+    release_namespace: "{{ serve_my_kind_system_namespace }}"
+    create_namespace: true
+    state: "present"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    values_files:
+      - "{{ serve_my_kind_manifests_and_configs_path }}/cilium.yml"

@@ -1,0 +1,27 @@
+kubeProxyReplacement: strict
+k8sServiceHost: {{ _serve_my_kind_setup_cluster_k8s_service_host }}
+k8sServicePort: {{ _serve_my_kind_setup_cluster_k8s_service_port }}
+hostServices:
+  enabled: true
+externalIPs:
+  enabled: true
+nodePort:
+  enabled: true
+hostPort:
+  enabled: true
+image:
+  pullPolicy: IfNotPresent
+ipam:
+  mode: kubernetes
+hubble:
+  enabled: {{ serve_my_kind_setup_cluster_hubble_enabled }}
+  relay:
+    enabled: {{ serve_my_kind_setup_cluster_hubble_relay_enabled }}
+  ui:
+    enabled: {{ serve_my_kind_setup_cluster_hubble_ui_enabled }}
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: nginx
+      hosts:
+        - hubble.{{ serve_my_kind_cluster_name | replace('-', '.') }}

@@ -8,7 +8,7 @@ nodes:
     - |
       {{ _serve_my_kind_setup_cluster_ingress_enabled_config | indent(6) }}
     - |
-      {{ _serve_my_kind_setup_cluster_coredns_enabled_config | indent(6) }}
+      {{ _serve_my_kind_setup_cluster_dns_config | indent(6) }}
     - |
       {{ _serve_my_kind_setup_cluster_ipvs_strict_arp_config | indent(6) }}
     extraPortMappings:

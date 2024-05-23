@@ -1,2 +1,3 @@
 serve_my_kind_configure_dns_network_manager_install: false
 serve_my_kind_configure_dns_dnsmasq_install: false
+serve_my_kind_configure_dns_enable_coredns_logging: true

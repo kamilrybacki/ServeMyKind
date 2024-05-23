@@ -69,3 +69,8 @@ These variables are to be defined in the `environments/<ENVIRONMENT>/group_vars/
 * (*optional*) `serve_my_kind_configure_dns_dnsmasq_install` - whether to install dnsmasq (default: `true`)
 
 **Important**: if for any node type fields `extraMounts` and/or `extraPortMappings` are defined, the `amount` field is automatically set to `1`, even if its value is specified by the user!
+
+## Resources
+
+* [Using dnsmasq for local Kind clusters
+](https://medium.com/@charled.breteche/using-dnsmasq-with-a-local-kind-clusters-9a27c8987073)

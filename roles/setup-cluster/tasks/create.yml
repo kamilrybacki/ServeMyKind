@@ -18,6 +18,9 @@
   ansible.builtin.include_tasks: "cluster.yml"
   when: serve_my_kind_current_clusters_list.stdout.find(serve_my_kind_cluster_name) == -1
 
+- name: "Install Cilium"
+  ansible.builtin.include_tasks: "cilium.yml"
+
 - name: "Install MetalLB"
   ansible.builtin.include_tasks: "metallb.yml"
 
