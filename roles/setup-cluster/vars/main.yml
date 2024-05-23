@@ -22,8 +22,8 @@ _serve_my_kind_setup_cluster_ipvs_strict_arp_config: |-
   ipvs:
     strictARP: {{ _serve_my_kind_setup_cluster_ipvs_strict_arp }}
 
-_serve_my_kind_setup_cluster_apiserver_pod_name: "kube-apiserver-{{ serve_my_kind_cluster_name }}-control-plane"
-_serve_my_kind_setup_cluster_k8s_service_port: 6443
+_serve_my_kind_setup_cluster_apiserver_host_name: "{{ serve_my_kind_cluster_name }}-control-plane"
+_serve_my_kind_setup_cluster_apiserver_host_port: 6443
 
 _serve_my_kind_setup_cluster_ingress_creation_timeout: "60s"
 _serve_my_kind_setup_cluster_load_balancer_creation_timeout: "60s"

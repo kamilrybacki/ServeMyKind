@@ -1,8 +1,3 @@
-- name: "Get Kind CIDR for MetalLB information via inspecting the Kind cluster network"
-  command: "docker network inspect {{ serve_my_kind_network }}"
-  register: "serve_my_kind_setup_cluster_kind_network_info"
-  changed_when: false
-
 - name: "Check if jmespath is installed"
   ansible.builtin.command: "pip3 show jmespath"
   register: "serve_my_kind_setup_cluster_jmespath_check"
@@ -13,6 +8,11 @@
   ansible.builtin.command:
     cmd: "pip3 install jmespath"
   when: "serve_my_kind_setup_cluster_jmespath_check.rc != 0"
+
+- name: "Get Kind CIDR for MetalLB information via inspecting the Kind cluster network"
+  command: "docker network inspect {{ serve_my_kind_network }}"
+  register: "serve_my_kind_setup_cluster_kind_network_info"
+  changed_when: false
 
 - name: "Extract the Kind CIDR for MetalLB"
   set_fact:

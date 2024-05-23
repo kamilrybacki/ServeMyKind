@@ -12,15 +12,6 @@
     repo_url: "https://helm.cilium.io/"
   when: "serve_my_kind_setup_cluster_cilium_repo_check is failed"
 
-- name: "Get the Kubernetes service host IP"
-  ansible.builtin.command:
-    cmd: kubectl -n kube-system get pod {{ _serve_my_kind_setup_cluster_apiserver_pod_name }} -o=jsonpath="{.status.hostIP}" 
-  register: serve_my_kind_setup_cluster_k8s_service_host
-
-- name: "Set the Kubernetes service host IP"
-  set_fact:
-    _serve_my_kind_setup_cluster_k8s_service_host: "{{ serve_my_kind_setup_cluster_k8s_service_host.stdout }}"
-
 - name: "Render Cilium Helm values file"
   ansible.builtin.template:
     src: "cilium.yml.j2"
@@ -36,3 +27,29 @@
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
     values_files:
       - "{{ serve_my_kind_manifests_and_configs_path }}/cilium.yml"
+
+- name: "Wait for Cilium LoadBalancer IP Pool CRD to be available"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    kind: CustomResourceDefinition
+    api_version: "apiextensions.k8s.io/v1"
+    name: ciliumloadbalancerippools.cilium.io
+  register: "serve_my_kind_setup_cluster_cilium_loadbalancerippool_crd_check"
+  until: "serve_my_kind_setup_cluster_cilium_loadbalancerippool_crd_check.resources | length > 0"
+
+- name: "Get Kind network CIDR via inspecting the {{ serve_my_kind_network }} network"
+  command: "docker network inspect {{ serve_my_kind_network }}"
+  register: "serve_my_kind_setup_cluster_kind_network_info"
+  changed_when: false
+
+- name: "Create Cilium IPPool manifest"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    definition:
+      apiVersion: "cilium.io/v2alpha1"
+      kind: CiliumLoadBalancerIPPool
+      metadata:
+        name: "pool"
+      spec:
+        cidrs:
+        - cidr: "{{ serve_my_kind_setup_cluster_kind_network_info.stdout | from_json | json_query('[].IPAM.Config[?Subnet].Subnet') | first }}"

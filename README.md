@@ -72,5 +72,5 @@ These variables are to be defined in the `environments/<ENVIRONMENT>/group_vars/
 
 ## Resources
 
-* [Using dnsmasq for local Kind clusters
-](https://medium.com/@charled.breteche/using-dnsmasq-with-a-local-kind-clusters-9a27c8987073)
+* [Using dnsmasq for local Kind clusters](https://medium.com/@charled.breteche/using-dnsmasq-with-a-local-kind-clusters-9a27c8987073)
+* [Kind cluster with Cilium and no kube-proxy](https://medium.com/@charled.breteche/kind-cluster-with-cilium-and-no-kube-proxy-c6f4d84b5a9d)
