@@ -45,7 +45,7 @@
     state: "present"
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
     wait: true
-    wait_timeout: "{{ _serve_my_kind_k8s_wait_load_balancer_timeout }}"
+    wait_timeout: "{{ _serve_my_kind_setup_cluster_load_balancer_creation_timeout }}"
 
 - name: "Create manifests for MetalLB CRs"
   ansible.builtin.template:
@@ -58,4 +58,4 @@
     src: "{{ serve_my_kind_manifests_and_configs_path }}/metallb-ip-pools.yml"
     state: "present"
     wait: true
-    wait_timeout: "{{ _serve_my_kind_k8s_wait_load_balancer_pools_timeout }}"
+    wait_timeout: "{{ _serve_my_kind_setup_cluster_load_balancer_pools_creation_timeout }}"

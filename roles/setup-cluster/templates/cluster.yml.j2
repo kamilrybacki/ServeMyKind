@@ -6,18 +6,11 @@ nodes:
   - role: "control-plane"
     kubeadmConfigPatches:
     - |
-      ---
-      apiVersion: kubeadm.k8s.io/v1beta4
-      kind: ClusterConfiguration
-      networking:
-        dnsDomain: "{{ serve_my_kind_cluster_name | replace('-', '.') }}"
-      featureGates:
-        CoreDNS: true
+      {{ _serve_my_kind_setup_cluster_ingress_enabled_config | indent(6) }}
     - |
-      kind: InitConfiguration
-      nodeRegistration:
-        kubeletExtraArgs:
-          node-labels: "ingress-ready=true"
+      {{ _serve_my_kind_setup_cluster_coredns_enabled_config | indent(6) }}
+    - |
+      {{ _serve_my_kind_setup_cluster_ipvs_strict_arp_config | indent(6) }}
     extraPortMappings:
     - containerPort: 80
       hostPort: 80

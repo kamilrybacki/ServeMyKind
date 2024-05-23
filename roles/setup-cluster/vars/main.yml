@@ -1,4 +1,26 @@
-_serve_my_kind_k8s_wait_ingress_timeout: "60s"
+_serve_my_kind_setup_cluster_ingress_enabled_config: |-
+  ---
+  apiVersion: kubeadm.k8s.io/v1beta4
+  kind: InitConfiguration
+  nodeRegistration:
+    kubeletExtraArgs:
+      node-labels: "ingress-ready=true"
+_serve_my_kind_setup_cluster_coredns_enabled_config: |-
+  apiVersion: kubeadm.k8s.io/v1beta4
+  kind: ClusterConfiguration
+  networking:
+    dnsDomain: "{{ serve_my_kind_cluster_name | replace('-', '.') }}"
+  featureGates:
+    CoreDNS: true
+_serve_my_kind_setup_cluster_ipvs_strict_arp: true
+_serve_my_kind_setup_cluster_ipvs_strict_arp_config: |-
+  apiVersion: kubeproxy.config.k8s.io/v1alpha1
+  kind: KubeProxyConfiguration
+  mode: "ipvs"
+  ipvs:
+    strictARP: {{ _serve_my_kind_setup_cluster_ipvs_strict_arp }}
 
-_serve_my_kind_k8s_wait_load_balancer_timeout: "60s"
-_serve_my_kind_k8s_wait_load_balancer_pools_timeout: 60
+_serve_my_kind_setup_cluster_ingress_creation_timeout: "60s"
+
+_serve_my_kind_setup_cluster_load_balancer_creation_timeout: "60s"
+_serve_my_kind_setup_cluster_load_balancer_pools_creation_timeout: 60
