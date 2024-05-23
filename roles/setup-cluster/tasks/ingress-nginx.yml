@@ -9,12 +9,7 @@
   ansible.builtin.command: "helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx"
   when: "serve_my_kind_ingress_nginx_repo_check.stdout.find('ingress-nginx') == -1"
 
-- name: "Render values file for NGINX Ingress Controller"
-  ansible.builtin.template:
-    src: "ingress-nginx.yml.j2"
-    dest: "{{ serve_my_kind_manifests_and_configs_path }}/ingress-nginx.yml"
-
-- name: "Install NGINX Ingress Controller via Helm Chart"
+- name: "Install Ingress NGINX Controller via Helm Chart"
   kubernetes.core.helm:
     name: "ingress-nginx"
     chart_ref: "ingress-nginx/ingress-nginx"
@@ -24,5 +19,5 @@
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
     wait: true
     wait_timeout: "{{ _serve_my_kind_setup_cluster_ingress_creation_timeout }}"
-    values_files:
-      - "{{ serve_my_kind_manifests_and_configs_path }}/ingress-nginx.yml"
+    values:
+      fullnameOverride: "{{ serve_my_kind_cluster_name }}-ingress"

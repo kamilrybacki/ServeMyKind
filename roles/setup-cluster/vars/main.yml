@@ -25,6 +25,7 @@ _serve_my_kind_setup_cluster_ipvs_strict_arp_config: |-
 _serve_my_kind_setup_cluster_apiserver_host_name: "{{ serve_my_kind_cluster_name }}-control-plane"
 _serve_my_kind_setup_cluster_apiserver_host_port: 6443
 
-_serve_my_kind_setup_cluster_ingress_creation_timeout: "60s"
-_serve_my_kind_setup_cluster_load_balancer_creation_timeout: "60s"
-_serve_my_kind_setup_cluster_load_balancer_pools_creation_timeout: 60
+_serve_my_kind_setup_cluster_cilium_crds_timeout: 300
+_serve_my_kind_setup_cluster_ingress_creation_timeout: "300s"
+_serve_my_kind_setup_cluster_load_balancer_creation_timeout: "300s"
+_serve_my_kind_setup_cluster_load_balancer_pools_creation_timeout: 300

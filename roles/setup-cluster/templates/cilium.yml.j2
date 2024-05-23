@@ -17,12 +17,13 @@ hubble:
     enabled: {{ serve_my_kind_setup_cluster_hubble_relay_enabled }}
   ui:
     enabled: {{ serve_my_kind_setup_cluster_hubble_ui_enabled }}
-    {{% if serve_my_kind_setup_cluster_hubble_ui_enabled %}}
+    {% if serve_my_kind_setup_cluster_hubble_ui_enabled %}
+
     ingress:
       enabled: true
       annotations:
         kubernetes.io/ingress.class: nginx
       hosts:
         - hubble.ui.{{ serve_my_kind_cluster_name | replace('-', '.') }}
-    {{% endif %}}
-https://medium.com/@charled.breteche/kind-cluster-with-cilium-and-no-kube-proxy-c6f4d84b5a9d
+
+    {% endif %}
