@@ -34,6 +34,12 @@ nodes:
 {% for index in range(serve_my_kind_setup_cluster_normal_workers) %}
 
   - role: "worker"
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "smk.cluster-role.worker=worker"
 
 {% endfor %}
 

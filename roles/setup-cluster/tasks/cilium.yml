@@ -12,6 +12,14 @@
     repo_url: "https://helm.cilium.io/"
   when: "serve_my_kind_setup_cluster_cilium_repo_check is failed"
 
+- name: "Get Pod CIDR list for Cilium Helm values file"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get nodes -o jsonpath='{.items[*].spec.podCIDR}'"
+  register: "serve_my_kind_setup_cluster_pod_cidr_list_info"
+
+- name: "Set Pod CIDR list for Cilium Helm values file"
+  set_fact:
+    serve_my_kind_setup_cluster_pod_cidr_list: "{{ serve_my_kind_setup_cluster_pod_cidr_list_info.stdout.split(' ') }}"
+
 - name: "Render Cilium Helm values file"
   ansible.builtin.template:
     src: "cilium.yml.j2"
@@ -27,6 +35,10 @@
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
     values_files:
       - "{{ serve_my_kind_manifests_and_configs_path }}/cilium.yml"
+
+- debug:
+    msg: "Cilium Ingress enabled!"
+  when: serve_my_kind_ingress_type == "cilium"
 
 - name: "Wait for Cilium LoadBalancer IP Pool CRD to be available"
   kubernetes.core.k8s_info:
@@ -69,12 +81,12 @@
       spec:
         nodeSelector:
           matchExpressions:
-            - key: "node-role.kubernetes.io/control-plane"
-              operator: "DoesNotExist"
+            - key: "smk.cluster-role.worker=worker"
+              operator: "Exists"
         interfaces:
-          - "eth0"
-        externalIPs: true
+          - ^eth[0-9]+
         loadBalancerIPs: true
+        externalIPs: true
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
     state: "present"
     wait: true

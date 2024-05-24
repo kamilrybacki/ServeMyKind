@@ -2,3 +2,4 @@ serve_my_kind_cluster_name: "cluster-dev"
 
 serve_my_kind_manifests_and_configs_path: "/tmp"
 serve_my_kind_kubeconfig_path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"
+serve_my_kind_ingress_type: "cilium"

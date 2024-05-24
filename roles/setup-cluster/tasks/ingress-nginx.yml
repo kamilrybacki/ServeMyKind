@@ -24,3 +24,5 @@
         service:
           externalTrafficPolicy: Local
           type: LoadBalancer
+      metrics:
+        enabled: true

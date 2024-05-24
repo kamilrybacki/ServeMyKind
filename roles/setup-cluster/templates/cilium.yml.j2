@@ -1,3 +1,6 @@
+cluster:
+    name: "{{ serve_my_kind_cluster_name }}"
+tunnel: vxlan
 kubeProxyReplacement: strict
 k8sServiceHost: {{ _serve_my_kind_setup_cluster_apiserver_host_name }}
 k8sServicePort: {{ _serve_my_kind_setup_cluster_apiserver_host_port }}
@@ -7,18 +10,34 @@ hostServices:
   enabled: false
 externalIPs:
   enabled: true
-nodePort:
-  enabled: true
 hostPort:
   enabled: true
 l2announcements:
   enabled: true
+l7Proxy: true
+ipam:
+  mode: kubernetes
+
+{% if serve_my_kind_ingress_type == "cilium" %}
+
+ingressController:
+  loadBalancerMode: "dedicated"
+  enabled: true
+  default: true
+  service:
+    name: "{{ serve_my_kind_cluster_name }}-ingress-controller"
+
+{% endif %}
+
 hubble:
   enabled: {{ serve_my_kind_setup_cluster_hubble_enabled }}
   relay:
     enabled: {{ serve_my_kind_setup_cluster_hubble_relay_enabled }}
   ui:
     enabled: {{ serve_my_kind_setup_cluster_hubble_ui_enabled }}
+  metrics:
+    enabled: {{ serve_my_kind_setup_clister_hubble_metrics_enabled }}
+
     {% if serve_my_kind_setup_cluster_hubble_ui_enabled %}
 
     ingress:

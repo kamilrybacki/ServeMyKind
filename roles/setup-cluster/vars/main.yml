@@ -4,7 +4,9 @@ _serve_my_kind_setup_cluster_ingress_enabled_config: |-
   kind: InitConfiguration
   nodeRegistration:
     kubeletExtraArgs:
-      node-labels: "ingress-ready=true"
+      node-labels:
+        - "ingress-ready=true"
+        - "smk.cluster-role.worker=control-plane"
 _serve_my_kind_setup_cluster_dns_config: |-
   apiVersion: kubeadm.k8s.io/v1beta4
   kind: ClusterConfiguration
