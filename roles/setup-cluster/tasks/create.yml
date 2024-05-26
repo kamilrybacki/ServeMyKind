@@ -30,6 +30,10 @@
       ansible.builtin.include_tasks: "ingress-nginx.yml"
       when: serve_my_kind_ingress_type == "ingress-nginx"
 
+    - name: "Install Cert-Manager"
+      ansible.builtin.include_tasks: "certificates.yml"
+      when: serve_my_kind_setup_cluster_cert_manager_enabled
+
     - name: "Set Ingress service name for further configuration"
       set_fact:
         _serve_my_kind_setup_cluster_ingress_service_name: "{{ serve_my_kind_cluster_name }}-ingress-controller"
