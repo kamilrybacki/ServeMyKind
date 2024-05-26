@@ -37,3 +37,13 @@ metadata:
   namespace: "{{ serve_my_kind_system_namespace }}"
 spec:
   selfSigned: {}
+---
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  name: "{{ serve_my_kind_setup_cluster_issuers_names_configmap_name }}"
+  namespace: "{{ serve_my_kind_system_namespace }}"
+data:
+  staging: "{{ serve_my_kind_setup_cluster_staging_issuer_name }}"
+  production: "{{ serve_my_kind_setup_cluster_production_issuer_name }}"
+  selfSigned: "{{ serve_my_kind_setup_cluster_self_signed_issuer_name }}"

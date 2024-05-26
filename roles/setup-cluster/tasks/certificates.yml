@@ -33,20 +33,3 @@
     state: "present"
     src: "{{ serve_my_kind_manifests_and_configs_path }}/cert-issuers.yml"
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
-
-- name: "Store the ClusterIssuers names in ConfigMap within {{ serve_my_kind_system_namespace }}"
-  kubernetes.core.k8s:
-    state: "present"
-    definition:
-      apiVersion: "v1"
-      kind: "ConfigMap"
-      metadata:
-        name: "{{ serve_my_kind_setup_clister_issuers_names_configmap_name }}"
-        namespace: "{{ serve_my_kind_system_namespace }}"
-      data:
-        staging: "{{ serve_my_kind_setup_cluster_staging_issuer_name }}"
-        production: "{{ serve_my_kind_setup_cluster_production_issuer_name }}"
-        selfSigned: "{{ serve_my_kind_setup_cluster_self_signed_issuer_name }}"
-    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
-    validate: "no"
-    force: "yes"

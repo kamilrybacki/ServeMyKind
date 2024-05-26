@@ -7,7 +7,7 @@ serve_my_kind_setup_cluster_cert_manager_enabled: true
 serve_my_kind_setup_cluster_production_issuer_name: "{{ serve_my_kind_cluster_name }}-letsencrypt-production"
 serve_my_kind_setup_cluster_staging_issuer_name: "{{ serve_my_kind_cluster_name }}-letsencrypt-staging"
 serve_my_kind_setup_cluster_self_signed_issuer_name: "{{ serve_my_kind_cluster_name }}-letsencrypt-self-signed"
-serve_my_kind_setup_clister_issuers_names_configmap_name: "{{ serve_my_kind_cluster_name }}-cert-issuers-names"
+serve_my_kind_setup_cluster_issuers_names_configmap_name: "{{ serve_my_kind_cluster_name }}-cert-issuers-names"
 
 serve_my_kind_setup_cluster_hubble_enabled: true
 serve_my_kind_setup_cluster_hubble_relay_enabled: true
