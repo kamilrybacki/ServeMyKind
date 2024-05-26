@@ -1,22 +1,20 @@
-cluster:
-    name: "{{ serve_my_kind_cluster_name }}"
-tunnel: vxlan
-kubeProxyReplacement: strict
+kubeProxyReplacement: true
 k8sServiceHost: {{ _serve_my_kind_setup_cluster_apiserver_host_name }}
 k8sServicePort: {{ _serve_my_kind_setup_cluster_apiserver_host_port }}
-image:
-  pullPolicy: IfNotPresent
-hostServices:
-  enabled: false
 externalIPs:
   enabled: true
-hostPort:
-  enabled: true
-l2announcements:
-  enabled: true
-l7Proxy: true
 ipam:
-  mode: kubernetes
+  mode: "kubernetes"
+operator:
+  resources:
+    limits:
+      cpu: "{{ _serve_my_kind_setup_cluster_operator_cpu_limit }}"
+      memory: "{{ _serve_my_kind_setup_cluster_operator_memory_limit }}"
+    requests:
+      cpu: "{{ _serve_my_kind_setup_cluster_operator_cpu_request }}"
+      memory: "{{ _serve_my_kind_setup_cluster_operator_memory_request }}"
+  rollOutPods: true
+rollOutCiliumPods: true
 
 {% if serve_my_kind_ingress_type == "cilium" %}
 
@@ -43,7 +41,7 @@ hubble:
     ingress:
       enabled: true
       annotations:
-        kubernetes.io/ingress.class: nginx
+        kubernetes.io/ingress.class: "{{ serve_my_kind_ingress_type }}"
       hosts:
         - hubble.ui.{{ serve_my_kind_cluster_name | replace('-', '.') }}
 

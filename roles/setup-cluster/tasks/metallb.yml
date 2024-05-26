@@ -1,0 +1,61 @@
+- name: "Get Kind CIDR for MetalLB information via inspecting the Kind cluster network"
+  command: "docker network inspect {{ serve_my_kind_network }}"
+  register: "serve_my_kind_setup_cluster_kind_network_info"
+  changed_when: false
+
+- name: "Check if jmespath is installed"
+  ansible.builtin.command: "pip3 show jmespath"
+  register: "serve_my_kind_setup_cluster_jmespath_check"
+  failed_when: false
+  changed_when: false
+
+- name: "Install jmespath if not available"
+  ansible.builtin.command:
+    cmd: "pip3 install jmespath"
+  when: "serve_my_kind_setup_cluster_jmespath_check.rc != 0"
+
+- name: "Extract the Kind CIDR for MetalLB"
+  set_fact:
+    serve_my_kind_setup_cluster_kind_cidr: "{{ serve_my_kind_setup_cluster_kind_network_info.stdout | from_json | json_query('[].IPAM.Config[?Subnet].Subnet') | first }}"
+
+- name: "Create IP adresses range for MetalLB"
+  set_fact:
+    serve_my_kind_setup_cluster_load_balancer_ip_range: "{{ serve_my_kind_setup_cluster_kind_cidr | regex_replace('0.0/16', '255.200') }}-{{ serve_my_kind_setup_cluster_kind_cidr | regex_replace('0.0/16', '255.240') }}"
+
+- name: "Check if MetalLB Helm repo is added"
+  kubernetes.core.helm_repository:
+    name: "metallb"
+    state: "present"
+    repo_url: "https://metallb.github.io/metallb"
+  register: "serve_my_kind_setup_cluster_load_balancer_repo_check"
+
+- name: "Add MetalLB Helm repo if not available"
+  kubernetes.core.helm_repository:
+    name: "metallb"
+    state: "present"
+    repo_url: "https://metallb.github.io/metallb"
+  when: "serve_my_kind_setup_cluster_load_balancer_repo_check is failed"
+
+- name: "Install MetalLB Helm Chart"
+  kubernetes.core.helm:
+    name: "metallb"
+    chart_ref: "metallb/metallb"
+    release_namespace: "{{ serve_my_kind_system_namespace }}"
+    create_namespace: true
+    state: "present"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    wait: true
+    wait_timeout: "{{ _serve_my_kind_setup_cluster_load_balancer_creation_timeout }}"
+
+- name: "Create manifests for MetalLB CRs"
+  ansible.builtin.template:
+    src: "metallb-crs.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/metallb-ip-pools.yml"
+
+- name: "Apply manifests for L2 IP advertisement and IP address pool"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    src: "{{ serve_my_kind_manifests_and_configs_path }}/metallb-ip-pools.yml"
+    state: "present"
+    wait: true
+    wait_timeout: "{{ _serve_my_kind_setup_cluster_load_balancer_pools_creation_timeout }}"

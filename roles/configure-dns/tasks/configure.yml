@@ -47,7 +47,7 @@
 - name: "Add additional config inside /etc/NetworkManager/dnsmasq.d"
   ansible.builtin.copy:
     content: | 
-      server=/{{ serve_my_kind_cluster_name | replace('-', '.') }}/{{ serve_my_kind_configure_dns_service_ip }}
+      address=/{{ serve_my_kind_cluster_name | replace('-', '.') }}/{{ serve_my_kind_configure_dns_service_ip }}
     dest: "{{_serve_my_kind_configure_dns_dnsmasq_kind_cluster_config }}"
 
 - name: "Restart NetworkManager"

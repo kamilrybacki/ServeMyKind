@@ -19,6 +19,8 @@
     wait: true
     wait_timeout: "{{ _serve_my_kind_setup_cluster_ingress_creation_timeout }}"
     values:
+      defaultBackend:
+        enabled: true
       fullnameOverride: "{{ serve_my_kind_cluster_name }}-ingress"
       controller:
         service:
