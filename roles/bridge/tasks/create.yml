@@ -1,0 +1,5 @@
+- name: "Install Cert-Manager"
+  ansible.builtin.include_tasks: "cert-manager.yml"
+
+- name: "Create Kind cluster certificates"
+  ansible.builtin.include_tasks: "certificates.yml"

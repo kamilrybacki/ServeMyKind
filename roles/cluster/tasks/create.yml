@@ -1,0 +1,44 @@
+---
+- name: "Check if Docker network exists"
+  ansible.builtin.shell:
+    cmd: "docker network inspect {{ serve_my_kind_network }}"
+  register: network_inspect
+  ignore_errors: true
+
+- name: "If Docker network doesn't exist, create it"
+  ansible.builtin.shell:
+    cmd: |
+      docker network create \
+      {{ serve_my_kind_network }} \
+      --driver=bridge \
+      --opt com.docker.network.bridge.enable_ip_masquerade=true \
+      --subnet={{ serve_my_kind_network_cidr }}
+  when: "network_inspect.rc != 0"
+
+- name: "Check if Kind Cluster is already created"
+  ansible.builtin.command: "kind get clusters"
+  register: serve_my_kind_current_clusters_list
+  changed_when: false
+  failed_when: false
+
+- name: "Setup and configure Kind cluster"
+  block:
+    - name: "Create Cluster config from template"
+      ansible.builtin.template:
+        src: "cluster.yml.j2"
+        dest: "{{ serve_my_kind_manifests_and_configs_path }}/kind-cluster.yml"
+        mode: "u=rw,g=r,o=r"
+
+    - name: "Create Kind Cluster"
+      ansible.builtin.command: "kind create cluster --config={{ serve_my_kind_manifests_and_configs_path }}/kind-cluster.yml --kubeconfig={{ serve_my_kind_kubeconfig_path }}"
+      environment:
+        KIND_EXPERIMENTAL_DOCKER_NETWORK: "{{ serve_my_kind_network }}"
+      register: kind_nginx_ingress_cluster_create
+      changed_when: kind_nginx_ingress_cluster_create is changed
+      failed_when: kind_nginx_ingress_cluster_create is failed
+
+    - name: "Wait for Kind Cluster to be ready"
+      ansible.builtin.command: "kubectl cluster-info --kubeconfig={{ serve_my_kind_kubeconfig_path }}"
+      register: kind_nginx_ingress_cluster_ready
+      until: kind_nginx_ingress_cluster_ready.stdout.find("is running") != -1
+  when: serve_my_kind_current_clusters_list.stdout.find(serve_my_kind_cluster_name) == -1

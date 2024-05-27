@@ -1,0 +1,97 @@
+- name: "Ensure NetworkManager is installed and running"
+  ansible.builtin.include_tasks: "network-manager.yml"
+  when: "serve_my_kind_dns_network_manager_install"
+
+- name: "Ensure dnsmasq is installed and used by NetworkManager"
+  ansible.builtin.include_tasks: "dnsmasq.yml"
+  when: "serve_my_kind_dns_dnsmasq_install"
+
+- name: "Check if NetworkManager uses dnsmasq"
+  ansible.builtin.shell:
+    cmd: "grep -q '^dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf"
+  register: network_manager_dnsmasq_check
+  ignore_errors: true
+
+- name: "Configure NetworkManager to use DNSMasq"
+  block:
+    - name: "Backup NetworkManager configuration"
+      ansible.builtin.copy:
+        src: "/etc/NetworkManager/NetworkManager.conf"
+        dest: "/etc/NetworkManager/NetworkManager.conf.bak"
+
+    - name: "Remove the current dns setting"
+      ansible.builtin.replace:
+        path: "/etc/NetworkManager/NetworkManager.conf"
+        regexp: "^dns=.*"
+        replace: ""
+
+    - name: "Add the dnsmasq dns setting after the [main] section"
+      ansible.builtin.shell:
+        cmd: sed -i '/^\[main\]/a dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf
+  when: "network_manager_dnsmasq_check.rc == 1"
+
+- name: "Get the {{ serve_my_kind_cluster_name }} LoadBalancer IP" 
+  ansible.builtin.command:
+    cmd: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get svc -n {{ serve_my_kind_networking_namespace }} {{ serve_my_kind_cluster_name }}-ingress-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"
+  register: "serve_my_kind_dns_load_balancer_ip_check"
+
+- name: "Extract the {{ serve_my_kind_cluster_name }} kube-dns service IP"
+  set_fact:
+    serve_my_kind_dns_service_ip: "{{ serve_my_kind_dns_load_balancer_ip_check.stdout }}" 
+
+- name: "Create Kind cluster dnsmasq configuration file"
+  ansible.builtin.template:
+    src: "nm-dnsmasq-kind.conf.j2"
+    dest: "{{ _serve_my_kind_dns_dnsmasq_network_manager_config }}"
+
+- name: "Add additional config inside /etc/NetworkManager/dnsmasq.d"
+  ansible.builtin.copy:
+    content: | 
+      address=/{{ serve_my_kind_cluster_name | replace('-', '.') }}/{{ serve_my_kind_dns_service_ip }}
+    dest: "{{_serve_my_kind_dns_dnsmasq_kind_cluster_config }}"
+
+- name: "Restart NetworkManager"
+  ansible.builtin.systemd:
+    name: "NetworkManager"
+    state: "restarted"
+
+- name: "Adjust CoreDNS Corefile"
+  block:
+    - name: "Get current Corefile stored in ConfigMap"
+      kubernetes.core.k8s_info:
+        api_version: "v1"
+        kind: "ConfigMap"
+        namespace: "kube-system"
+        name: "coredns"
+        kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+      register: "serve_my_kind_dns_corefile_info"
+
+    - name: "Extract the current Corefile stored in ConfigMap"
+      set_fact:
+        serve_my_kind_dns_corefile: "{{ serve_my_kind_dns_corefile_info.resources[0].data.Corefile }}"
+
+    - name: "Change the domain from .cluster.local to .{{ serve_my_kind_cluster_name | replace('-', '.') }}"
+      set_fact:
+        serve_my_kind_dns_corefile: "{{ serve_my_kind_dns_corefile | regex_replace('cluster.local', serve_my_kind_cluster_name | replace('-', '.')) }}"
+    
+    - name: "Add logging to Corefile if enabled"
+      set_fact:
+        serve_my_kind_dns_corefile: "{{ serve_my_kind_dns_corefile | regex_replace('errors\n', 'errors\n    log\n') }}"
+      when: "serve_my_kind_dns_enable_coredns_logging"
+
+    - name: "Update Corefile stored in ConfigMap"
+      kubernetes.core.k8s:
+        definition:
+          apiVersion: "v1"
+          kind: "ConfigMap"
+          metadata:
+            name: "coredns"
+            namespace: "kube-system"
+          data:
+            Corefile: "{{ serve_my_kind_dns_corefile }}"
+        kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+
+    - name: "Rollout restart CoreDNS deployment manually via kubectl"
+      ansible.builtin.command:
+        cmd: "kubectl rollout restart deployment coredns -n kube-system --kubeconfig={{ serve_my_kind_kubeconfig_path }}"
+  when: "serve_my_kind_use_coredns"

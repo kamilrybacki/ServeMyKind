@@ -1,0 +1,62 @@
+kubeProxyReplacement: strict
+k8sServiceHost: {{ _serve_my_kind_cni_apiserver_host_name }}
+k8sServicePort: {{ _serve_my_kind_cni_apiserver_host_port }}
+externalIPs:
+  enabled: true
+ipam:
+  mode: "kubernetes"
+hostServices:
+  enabled: true
+externalIPs:
+  enabled: true
+nodePort:
+  enabled: true
+hostPort:
+  enabled: true
+operator:
+  resources:
+    limits:
+      cpu: "{{ _serve_my_kind_cni_operator_cpu_limit }}"
+      memory: "{{ _serve_my_kind_cni_operator_memory_limit }}"
+    requests:
+      cpu: "{{ _serve_my_kind_cni_operator_cpu_request }}"
+      memory: "{{ _serve_my_kind_cni_operator_memory_request }}"
+  rollOutPods: true
+rollOutCiliumPods: true
+
+{% if serve_my_kind_ingress_type == "cilium" %}
+
+ingressController:
+  loadBalancerMode: "dedicated"
+  enabled: true
+  default: true
+  service:
+    name: "{{ serve_my_kind_cluster_name }}-ingress-controller"
+
+{% endif %}
+
+hubble:
+  enabled: {{ serve_my_kind_cni_hubble_enabled }}
+  relay:
+    enabled: {{ serve_my_kind_cni_hubble_relay_enabled }}
+  metrics:
+    enabled: {{ serve_my_kind_cni_hubble_metrics_enabled }}
+
+  {% if serve_my_kind_cni_hubble_ui_enabled %}
+
+  ui:
+    enabled: {{ serve_my_kind_cni_hubble_ui_enabled }}
+    ingress:
+      enabled: true
+      className: "{{ serve_my_kind_ingress_type }}"
+      annotations:
+        kubernetes.io/ingress.class: "{{ serve_my_kind_ingress_type }}"
+        cert-manager.io/cluster-issuer: "{{ serve_my_kind_self_signed_issuer_name }}"
+      hosts:
+        - hubble-ui.{{ serve_my_kind_cluster_name | replace('-', '.') }}
+      tls:
+        - secretName: hubble-ui-tls
+          hosts:
+            - hubble-ui.{{ serve_my_kind_cluster_name | replace('-', '.') }}
+
+  {% endif %}

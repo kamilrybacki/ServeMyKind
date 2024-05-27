@@ -1,0 +1,4 @@
+serve_my_kind_ingress_production_issuer_name: "{{ serve_my_kind_cluster_name }}-ca-production"
+serve_my_kind_ingress_staging_issuer_name: "{{ serve_my_kind_cluster_name }}-ca-staging"
+serve_my_kind_ingress_self_signed_issuer_name: "{{ serve_my_kind_cluster_name }}-ca-self-signed"
+serve_my_kind_ingress_issuers_names_configmap_name: "{{ serve_my_kind_cluster_name }}-cert-issuers-names"

@@ -5,6 +5,14 @@
   any_errors_fatal: true
   become: true
   tasks:
-    - ansible.builtin.include_role: { name: "ensure-tools", tasks_from: "install-all" }
-    - ansible.builtin.include_role: { name: "setup-cluster", tasks_from: "create" }
-    - ansible.builtin.include_role: { name: "configure-dns", tasks_from: "configure" }
+    - block:
+      - ansible.builtin.include_role: { name: "utils", tasks_from: "install" }
+      - ansible.builtin.include_role: { name: "cluster", tasks_from: "create" }
+      - ansible.builtin.include_role: { name: "cni", tasks_from: "setup" }
+      - ansible.builtin.include_role: { name: "bridge", tasks_from: "create" }
+      - ansible.builtin.include_role: { name: "dns", tasks_from: "configure" }
+      rescue:
+        - name: "Remove failed Kind Cluster deployment"
+          ansible.builtin.command: "kind delete clusters {{ serve_my_kind_cluster_name }}"
+          ignore_errors: true
+        - meta: end_play

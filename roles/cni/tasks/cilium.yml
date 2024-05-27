@@ -1,0 +1,41 @@
+- name: "Check if Cilium Helm repo is added"
+  kubernetes.core.helm_repository:
+    name: "cilium"
+    state: "present"
+    repo_url: "https://helm.cilium.io/"
+  register: "serve_my_kind_cni_cilium_repo_check"
+
+- name: "Add Cilium Helm repo if not available"
+  kubernetes.core.helm_repository:
+    name: "cilium"
+    state: "present"
+    repo_url: "https://helm.cilium.io/"
+  when: "serve_my_kind_cni_cilium_repo_check is failed"
+
+- name: "Get Pod CIDR list for Cilium Helm values file"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get nodes -o jsonpath='{.items[*].spec.podCIDR}'"
+  register: "serve_my_kind_cni_pod_cidr_list_info"
+
+- name: "Set Pod CIDR list for Cilium Helm values file"
+  set_fact:
+    serve_my_kind_cni_pod_cidr_list: "{{ serve_my_kind_cni_pod_cidr_list_info.stdout.split(' ') }}"
+
+- name: "Render Cilium Helm values file"
+  ansible.builtin.template:
+    src: "cilium.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/cilium.yml"
+
+- name: "Install Cilium Helm Chart with values file"
+  kubernetes.core.helm:
+    name: "cilium"
+    chart_ref: "cilium/cilium"
+    release_namespace: "{{ serve_my_kind_networking_namespace }}"
+    create_namespace: true
+    state: "present"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    values_files:
+      - "{{ serve_my_kind_manifests_and_configs_path }}/cilium.yml"
+
+- debug:
+    msg: "Cilium Ingress enabled!"
+  when: serve_my_kind_ingress_type == "cilium"

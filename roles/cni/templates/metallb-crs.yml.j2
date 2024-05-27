@@ -1,0 +1,18 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: "{{ serve_my_kind_cni_load_balancer_address_pool_name }}"
+  namespace: "{{ serve_my_kind_networking_namespace }}"
+spec:
+  addresses:
+    - {{ serve_my_kind_cni_load_balancer_ip_range | replace("'", "") | replace("[","") | replace("]","")}}
+  autoAssign: true
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: "{{ serve_my_kind_cni_load_balancer_l2_advertisement_name }}"
+  namespace: "{{ serve_my_kind_networking_namespace }}"
+spec:
+  ipAddressPools:
+  - "{{ serve_my_kind_cni_load_balancer_address_pool_name }}"

@@ -1,0 +1,3 @@
+_serve_my_kind_dns_dnsmasq_port: 53
+_serve_my_kind_dns_dnsmasq_network_manager_config: /etc/NetworkManager/dnsmasq.d/00-nm-dnsmasq.conf
+_serve_my_kind_dns_dnsmasq_kind_cluster_config: /etc/NetworkManager/dnsmasq.d/01-dnsmasq-kind.conf

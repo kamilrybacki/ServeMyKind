@@ -1,0 +1,19 @@
+serve_my_kind_cluster_name: "kind-local"
+
+serve_my_kind_setup_cluster_normal_workers: 2
+serve_my_kind_setup_cluster_special_nodes: []
+serve_my_kind_setup_cluster_enable_strict_arp: true
+
+serve_my_kind_setup_cluster_hubble_enabled: true
+serve_my_kind_setup_cluster_hubble_relay_enabled: true
+serve_my_kind_setup_cluster_hubble_ui_enabled: true
+serve_my_kind_setup_clister_hubble_metrics_enabled:
+  - "dns"
+  - "drop"
+  - "tcp"
+  - "flow"
+  - "icmp"
+  - "http"
+
+serve_my_kind_setup_cluster_load_balancer_l2_advertisement_name: "{{ serve_my_kind_cluster_name }}-l2-advertisement"
+serve_my_kind_setup_cluster_load_balancer_address_pool_name: "{{ serve_my_kind_cluster_name }}-default-pool"
