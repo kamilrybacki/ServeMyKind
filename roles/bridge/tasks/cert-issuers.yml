@@ -1,10 +1,6 @@
 - name: "Generate the self-signed certificate using OpenSSL"
   ansible.builtin.include_tasks: "certificate.yml"
 
-- name: "Update the CA certificates"
-  ansible.builtin.command:
-    cmd: "update-ca-certificates"
-
 - name: "Create a secret containing the self-signed certificate for the bridge"
   ansible.builtin.command:
     cmd: >

@@ -18,7 +18,9 @@
     -key "{{ _serve_my_kind_bridge_self_signed_ca_key_file }}"
     -days "{{ _serve_my_kind_bridge_self_signed_ca_days }}"
     -out "{{ _serve_my_kind_bridge_self_signed_ca_cert_file }}"
-    -subj "/CN={{ serve_my_kind_cluster_name }}"
+    -subj "/CN={{ serve_my_kind_cluster_name }}/O={{ serve_my_kind_cluster_name }}"
+    -addext "extendedKeyUsage = serverAuth" \
+    -addext "subjectAltName = DNS:{{ serve_my_kind_cluster_name }}" \
     -sha256
   args:
     creates: "{{ _serve_my_kind_bridge_self_signed_ca_cert_file }}" 
