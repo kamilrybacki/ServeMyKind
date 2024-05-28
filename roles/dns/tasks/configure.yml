@@ -47,7 +47,7 @@
 - name: "Add additional config inside /etc/NetworkManager/dnsmasq.d"
   ansible.builtin.copy:
     content: | 
-      address=/{{ serve_my_kind_cluster_name | replace('-', '.') }}/{{ serve_my_kind_dns_service_ip }}
+      address=/{{ serve_my_kind_cluster_domain }}/{{ serve_my_kind_dns_service_ip }}
     dest: "{{_serve_my_kind_dns_dnsmasq_kind_cluster_config }}"
 
 - name: "Restart NetworkManager"
@@ -70,7 +70,7 @@
       set_fact:
         serve_my_kind_dns_corefile: "{{ serve_my_kind_dns_corefile_info.resources[0].data.Corefile }}"
 
-    - name: "Change the domain from .cluster.local to .{{ serve_my_kind_cluster_name | replace('-', '.') }}"
+    - name: "Change the domain from .cluster.local to .{{ serve_my_kind_cluster_domain }}"
       set_fact:
         serve_my_kind_dns_corefile: "{{ serve_my_kind_dns_corefile | regex_replace('cluster.local', serve_my_kind_cluster_name | replace('-', '.')) }}"
     

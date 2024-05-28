@@ -1,0 +1,32 @@
+---
+- name: Generate private key
+  command: >
+    openssl
+    genrsa
+    -out "{{ _serve_my_kind_bridge_self_signed_ca_key_file }}"
+    {{ _serve_my_kind_bridge_self_signed_ca_key_size }}
+  args:
+    creates: "{{ _serve_my_kind_bridge_self_signed_ca_key_file }}"
+
+- name: Generate self-signed certificate
+  command: >
+    openssl
+    req
+    -x509
+    -new
+    -nodes
+    -key "{{ _serve_my_kind_bridge_self_signed_ca_key_file }}"
+    -days "{{ _serve_my_kind_bridge_self_signed_ca_days }}"
+    -out "{{ _serve_my_kind_bridge_self_signed_ca_cert_file }}"
+    -subj "/CN={{ serve_my_kind_cluster_name }}"
+    -sha256
+  args:
+    creates: "{{ _serve_my_kind_bridge_self_signed_ca_cert_file }}" 
+
+- name: "Add the self-signed certificate to the system trust store"
+  ansible.builtin.command:
+    cmd: "cp {{ _serve_my_kind_bridge_self_signed_ca_cert_file }} {{ _serve_my_kind_bridge_self_signed_certificate_path }}"
+
+- name: "Update the CA certificates"
+  ansible.builtin.command:
+    cmd: "update-ca-certificates"

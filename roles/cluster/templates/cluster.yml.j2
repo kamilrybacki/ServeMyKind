@@ -22,7 +22,7 @@ nodes:
       apiVersion: kubeadm.k8s.io/v1beta4
       kind: ClusterConfiguration
       networking:
-        dnsDomain: "{{ serve_my_kind_cluster_name | replace('-', '.') }}"
+        dnsDomain: "{{ serve_my_kind_cluster_domain }}"
       featureGates:
         CoreDNS: {{ serve_my_kind_use_coredns }}
     - |

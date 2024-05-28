@@ -23,14 +23,3 @@
       installCRDs:
         true
     wait: true
-
-- name: "Render the manifest for issuers"
-  ansible.builtin.template:
-    src: "cert-issuers.yml.j2"
-    dest: "{{ serve_my_kind_manifests_and_configs_path }}/cert-issuers.yml"
-
-- name: "Create the ClusterIssuers"
-  kubernetes.core.k8s:
-    state: "present"
-    src: "{{ serve_my_kind_manifests_and_configs_path }}/cert-issuers.yml"
-    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"

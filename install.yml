@@ -6,6 +6,9 @@
   become: true
   tasks:
     - block:
+      - name: "Set cluster domain"
+        set_fact:
+          serve_my_kind_cluster_domain: "{{ serve_my_kind_cluster_name | replace('-', '.') }}"
       - ansible.builtin.include_role: { name: "utils", tasks_from: "install" }
       - ansible.builtin.include_role: { name: "cluster", tasks_from: "create" }
       - ansible.builtin.include_role: { name: "cni", tasks_from: "setup" }
@@ -15,4 +18,4 @@
         - name: "Remove failed Kind Cluster deployment"
           ansible.builtin.command: "kind delete clusters {{ serve_my_kind_cluster_name }}"
           ignore_errors: true
-        - meta: end_play
+        - ansible.builtin.meta: end_play
