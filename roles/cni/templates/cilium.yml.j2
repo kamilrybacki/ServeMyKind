@@ -50,7 +50,6 @@ hubble:
       enabled: true
       className: "{{ serve_my_kind_ingress_type }}"
       annotations:
-        kubernetes.io/ingress.class: "{{ serve_my_kind_ingress_type }}"
         cert-manager.io/cluster-issuer: "{{ serve_my_kind_self_signed_issuer_name }}"
       hosts:
         - hubble-ui.{{ serve_my_kind_cluster_name | replace('-', '.') }}
