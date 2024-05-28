@@ -1,0 +1,30 @@
+- name: "Generate and encode key for the {{ _serve_my_kind_certification_issuer_name }} issuer"
+  ansible.builtin.command:
+    cmd: >
+      openssl
+      genrsa
+      -out "{{ _serve_my_kind_certification_issuer_ca_key }}"
+      {{ _serve_my_kind_certification_ca_key_size }}
+  args:
+    creates: "{{ _serve_my_kind_certification_issuer_ca_key }}"
+
+- name: "Encode the key for the {{ _serve_my_kind_certification_issuer_name }} issuer"
+  ansible.builtin.command:
+    cmd: >
+      base64
+      -w 0
+      "{{ _serve_my_kind_certification_issuer_ca_key }}"
+  register: "_serve_my_kind_certification_issuer_ca_key_encoded"
+
+- name: "Render the manifest for issuer"
+  ansible.builtin.template:
+    src: "acme-issuer.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/{{ _serve_my_kind_certification_issuer_name }}-issuer.yml"
+
+- name: "Create the {{ _serve_my_kind_certification_issuer_name }} ClusterIssuer"
+  kubernetes.core.k8s:
+    state: "present"
+    src: "{{ serve_my_kind_manifests_and_configs_path }}/{{ _serve_my_kind_certification_issuer_name }}-issuer.yml"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    wait: true
+    wait_timeout: "{{ _serve_my_kind_certification_issuers_creation_timeout }}"

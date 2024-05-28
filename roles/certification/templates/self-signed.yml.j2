@@ -1,0 +1,17 @@
+apiVersion: "cert-manager.io/v1"
+kind: "ClusterIssuer"
+metadata:
+  name: "{{ serve_my_kind_ingress_self_signed_issuer_name }}"
+  namespace: "{{ serve_my_kind_networking_namespace }}"
+spec:
+    selfSigned: {}
+---
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  name: "{{ serve_my_kind_ingress_issuers_names_configmap_name }}"
+  namespace: "{{ serve_my_kind_networking_namespace }}"
+data:
+  staging: "{{ serve_my_kind_ingress_staging_issuer_name }}"
+  production: "{{ serve_my_kind_ingress_production_issuer_name }}"
+  selfSigned: "{{ serve_my_kind_ingress_self_signed_issuer_name }}"
