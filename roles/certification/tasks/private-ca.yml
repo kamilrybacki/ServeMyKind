@@ -1,0 +1,56 @@
+- name: "Start a private CA (step-ca) host"
+  community.general.docker_container:
+    name: "{{ serve_my_kind_cluster_name }}-step-ca"
+    image: "smallstep/step-ca"
+    volumes:
+      - "{{ serve_my_kind_cluster_name }}-step-volume:/home/step"
+    ports:
+      - "{{ serve_my_kind_certification_private_ca_port }}:9000"
+    env:
+      DOCKER_STEPCA_INIT_NAME: "{{ serve_my_kind_cluster_name }}-ca"
+      DOCKER_STEPCA_INIT_DNS_NAMES: "localhost,{{ ansible_fqdn }}"
+      DOCKER_STEPCA_INIT_ACME: "true"
+    networks:
+      - name: "{{ serve_my_kind_network }}"
+    state: "started"
+    restart_policy: "always"
+
+- name: "Wait for the private CA (step-ca) container to be healthy"
+  community.docker.docker_container_info:
+    name: "{{ serve_my_kind_cluster_name }}-step-ca"
+  until: "_ca_container_info.container.State.Health.Status == 'healthy'"
+  register: _ca_container_info
+  retries: "{{ _serve_my_kind_certification_private_ca_health_retries }}"
+  delay: "{{ _serve_my_kind_certification_private_ca_health_delay }}"
+
+- name: "Get logs from step-ca container"
+  ansible.builtin.command:
+    cmd: "docker logs {{ serve_my_kind_cluster_name }}-step-ca"
+  register: "serve_my_kind_certification_private_ca_logs"
+
+- name: "Extract the SHA256 key from the logs output"
+  set_fact:
+    serve_my_kind_certification_private_ca_sha_key: "{{ serve_my_kind_certification_private_ca_logs.stdout_lines[1] | regex_search('Your CA administrative password is: ([a-zA-Z0-9]+)', '\\1') }}"
+
+- name: "Create a Secret containing the private CA (step-ca) password"
+  kubernetes.core.k8s:
+    state: "present"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    definition:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        name: "{{ _serve_my_kind_certification_private_ca_secret_name }}"
+        namespace: "{{ serve_my_kind_networking_namespace }}"
+      data:
+        key: "{{ serve_my_kind_certification_private_ca_sha_key | b64encode }}"
+    wait: true
+
+- name: "Get the the private CA (step-ca) Docker host info"
+  community.docker.docker_container_info:
+    name: "{{ serve_my_kind_cluster_name }}-step-ca"
+  register: "serve_my_kind_certification_private_ca_host_info"
+
+- name: "Set the private CA (step-ca) host IP address"
+  set_fact:
+    serve_my_kind_certification_private_ca_ip: "{{ serve_my_kind_certification_private_ca_host_info.container.NetworkSettings.Networks[serve_my_kind_network].IPAddress }}"

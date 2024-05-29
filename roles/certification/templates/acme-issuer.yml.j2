@@ -1,24 +1,15 @@
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "{{ serve_my_kind_ingress_staging_issuer_name }}-issuer-account-key"
-  namespace: "{{ serve_my_kind_networking_namespace }}"
-type: Opaque
-data:
-  tls.key: "{{ _serve_my_kind_certification_issuer_ca_key_encoded.stdout }}"
----
 apiVersion: "cert-manager.io/v1"
 kind: "ClusterIssuer"
 metadata:
-  name: "{{ _serve_my_kind_certification_issuer_name }}"
+  name: "{{ _serve_my_kind_issuer_type }}-issuer"
   namespace: "{{ serve_my_kind_networking_namespace }}"
 spec:
   acme:
-    email: "{{ serve_my_kind_cert_issuer_email }}"
-    server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+    email: "{{ serve_my_kind_certification_issuer_email }}"
+    server: "https://{{ serve_my_kind_certification_private_ca_ip }}:{{ serve_my_kind_certification_private_ca_port }}/acme/{{ serve_my_kind_cluster_name }}-{{ _serve_my_kind_issuer_type }}/directory"
     privateKeySecretRef:
-      name: "{{ serve_my_kind_ingress_staging_issuer_name }}-issuer-account-key"
+      name: "{{ _serve_my_kind_issuer_type }}-issuer-account-key"
     solvers:
       - http01:
           ingress:

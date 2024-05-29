@@ -1,0 +1,13 @@
+- name: "Stop the private CA (step-ca) host"
+  community.general.docker_container:
+    name: "{{ serve_my_kind_cluster_name }}-step-ca"
+    state: "absent"
+
+- name: "Prune all Docker containers"
+  community.general.docker_prune:
+    containers: true
+
+- name: "Remove the private CA (step-ca) volume"
+  community.general.docker_volume:
+    name: "{{ serve_my_kind_cluster_name }}-step-volume"
+    state: "absent"

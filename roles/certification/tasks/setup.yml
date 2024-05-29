@@ -1,5 +1,44 @@
 - name: "Install Cert-Manager"
   ansible.builtin.include_tasks: "manager.yml"
 
-- name: "Create Kind cluster certificate issuers"
-  ansible.builtin.include_tasks: "issuers.yml"
+- name: "Run a Private Certificate Authority"
+  ansible.builtin.include_tasks: "private-ca.yml"
+
+- name: "Create Kind cluster ACME certificate issuers"
+  ansible.builtin.include_tasks: "issuer.yml"
+  loop:
+    - "staging"
+    - "production"
+  loop_control:
+    loop_var: "_serve_my_kind_issuer_type"
+
+- name: "Create a self-signed issuer"
+  kubernetes.core.k8s:
+    state: "present"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    definition:
+      apiVersion: "cert-manager.io/v1"
+      kind: "ClusterIssuer"
+      metadata:
+        name: "{{ _serve_my_kind_certification_self_signed_issuer_name }}"
+        namespace: "{{ serve_my_kind_networking_namespace }}"
+      spec:
+        selfSigned: {}
+    wait: true
+    wait_timeout: "{{ _serve_my_kind_certification_issuers_creation_timeout }}"
+
+- name: "Create ConfigMap with issuer names"
+  kubernetes.core.k8s:
+    state: "present"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    definition:
+      apiVersion: "v1"
+      kind: "ConfigMap"
+      metadata:
+        name: "{{ _serve_my_kind_certification_issuers_names_configmap_name }}"
+        namespace: "{{ serve_my_kind_networking_namespace }}"
+      data:
+        selfSigned: "{{ _serve_my_kind_certification_self_signed_issuer_name }}"
+        staging: "{{ _serve_my_kind_certification_staging_issuer_name }}"
+        production: "{{ _serve_my_kind_certification_production_issuer_name }}"
+    wait: true
