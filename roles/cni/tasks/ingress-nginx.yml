@@ -1,13 +1,6 @@
 ---
-- name: "Check if NGINX Ingress Controller Helm Chart Repository is added"
-  ansible.builtin.command: "helm repo list"
-  register: serve_my_kind_ingress_nginx_repo_check
-  changed_when: false
-  failed_when: false
-
 - name: "Add NGINX Ingress Controller Helm Chart Repository if not available"
   ansible.builtin.command: "helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx"
-  when: "serve_my_kind_ingress_nginx_repo_check.stdout.find('ingress-nginx') == -1"
 
 - name: "Install Ingress NGINX Controller via Helm Chart"
   kubernetes.core.helm:

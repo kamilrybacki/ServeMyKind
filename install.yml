@@ -18,5 +18,4 @@
         - name: "Remove failed Kind Cluster deployment"
           ansible.builtin.command: "kind delete clusters {{ serve_my_kind_cluster_name }}"
           ignore_errors: true
-        - ansible.builtin.include_role: { name: "certification", tasks_from: "disable" }
         - ansible.builtin.meta: end_play

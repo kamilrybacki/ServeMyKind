@@ -22,19 +22,11 @@
   set_fact:
     serve_my_kind_cni_load_balancer_ip_range: "{{ serve_my_kind_cni_kind_cidr | regex_replace('0.0/16', '255.200') }}-{{ serve_my_kind_cni_kind_cidr | regex_replace('0.0/16', '255.240') }}"
 
-- name: "Check if MetalLB Helm repo is added"
+- name: "Add MetalLB Helm repo"
   kubernetes.core.helm_repository:
     name: "metallb"
     state: "present"
     repo_url: "https://metallb.github.io/metallb"
-  register: "serve_my_kind_cni_load_balancer_repo_check"
-
-- name: "Add MetalLB Helm repo if not available"
-  kubernetes.core.helm_repository:
-    name: "metallb"
-    state: "present"
-    repo_url: "https://metallb.github.io/metallb"
-  when: "serve_my_kind_cni_load_balancer_repo_check is failed"
 
 - name: "Install MetalLB Helm Chart"
   kubernetes.core.helm:

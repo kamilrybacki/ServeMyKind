@@ -3,14 +3,8 @@ _serve_my_kind_certification_private_ca_health_retries: 10
 _serve_my_kind_certification_private_ca_health_delay: 5
 
 _serve_my_kind_certification_self_signed_issuer_name: "{{ serve_my_kind_cluster_name }}-ca-self-signed"
-_serve_my_kind_certification_production_issuer_name: "{{ serve_my_kind_cluster_name }}-ca-production"
-_serve_my_kind_certification_staging_issuer_name: "{{ serve_my_kind_cluster_name }}-ca-staging"
 _serve_my_kind_certification_issuers_names_configmap_name: "{{ serve_my_kind_cluster_name }}-cert-issuers-names"
-
 _serve_my_kind_certification_issuers_creation_timeout: 300
-_serve_my_kind_certification_self_signed_cert_creation_timeout: 60
-
-_serve_my_kind_certification_self_signed_ca_parts_path: "{{ lookup('env', 'HOME') + '/.kube' }}"
 
 _serve_my_kind_certification_certificates_days: 365
 _serve_my_kind_certification_ca_key_size: 2048

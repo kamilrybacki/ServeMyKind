@@ -1,0 +1,23 @@
+apiVersion: "cert-manager.io/v1"
+kind: "ClusterIssuer"
+metadata:
+  name: "{{ _serve_my_kind_certification_self_signed_issuer_name }}"
+  namespace: "{{ serve_my_kind_certification_namespace }}"
+spec:
+  selfSigned: {}
+---
+apiVersion: "certmanager.step.sm/v1beta1"
+kind: "StepClusterIssuer"
+metadata:
+  name: "{{ serve_my_kind_ca_issuer_name }}"
+  namespace: "{{ serve_my_kind_certification_namespace }}"
+spec:
+  url: "https://{{ serve_my_kind_certification_private_ca_fqdn }}"
+  caBundle: "{{ serve_my_kind_certification_private_ca_root }}"
+  provisioner:
+    name: "{{ serve_my_kind_certification_private_ca_provisioner_name }}"
+    kid: "{{ serve_my_kind_certification_private_ca_provisioner_kid }}"
+    passwordRef:
+      namespace: "{{ serve_my_kind_certification_namespace }}"
+      name: "{{ serve_my_kind_certification_private_ca_provisioner_password_secret }}"
+      key: "password"

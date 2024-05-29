@@ -1,0 +1,62 @@
+- name: "Add smallstep Helm repository"
+  kubernetes.core.helm_repository:
+    name: "smallstep"
+    repo_url: "https://smallstep.github.io/helm-charts"
+    state: "present"
+
+- name: "Install step-certificates Helm Chart"
+  kubernetes.core.helm:
+    name: "step-certificates"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    namespace: "{{ serve_my_kind_certification_namespace }}"
+    create_namespace: true
+    chart_ref: "smallstep/step-certificates"
+    values:
+      fullnameOverride: "{{ serve_my_kind_cluster_name }}-step-ca"
+      service:
+        targetPort: "{{ serve_my_kind_certification_private_ca_port }}"
+      ca:
+        name: "{{ serve_my_kind_cluster_name | regex_replace('-', ' ') }} | title }}"
+      provisioner:
+        name: "{{ serve_my_kind_cluster_name }}-provisioner"
+    wait: true
+
+- name: "Install step-issuer Helm Chart"
+  kubernetes.core.helm:
+    name: "step-issuer"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    namespace: "{{ serve_my_kind_certification_namespace }}"
+    chart_ref: "smallstep/step-issuer"
+    wait: true
+
+- name: "Get the Root CA from generated ConfigMap"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get configmap -n {{ serve_my_kind_certification_namespace }} {{ serve_my_kind_cluster_name }}-step-ca-certs -o json"
+  register: serve_my_kind_certification_private_ca_root_raw
+
+- name: "Get the {{ serve_my_kind_cluster_name }} Provisioner config"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get configmap -n {{ serve_my_kind_certification_namespace }} {{ serve_my_kind_cluster_name }}-step-ca-config -o json"
+  register: serve_my_kind_certification_private_ca_provisioner_config_raw
+
+- name: "Get the {{ serve_my_kind_cluster_name }} Provisioner password"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} -n {{ serve_my_kind_certification_namespace }} get secret  -o jsonpath='{.data.password}'" 
+  register: serve_my_kind_certification_private_ca_provisioner_password_raw
+
+- name: "Store FQDN of the private CA data for step-issuer"
+  set_fact:
+    serve_my_kind_certification_private_ca_fqdn: "{{ serve_my_kind_cluster_name }}-step-ca.{{ serve_my_kind_certification_namespace }}.svc.{{ serve_my_kind_cluster_domain }}"
+    serve_my_kind_certification_private_ca_root: "{{ serve_my_kind_certification_private_ca_root_raw.stdout | from_json | json_query('data.\"root_ca.crt\"') | trim | b64encode }}"
+    serve_my_kind_certification_private_ca_provisioner_name: "{{ serve_my_kind_cluster_name }}-provisioner"
+    serve_my_kind_certification_private_ca_provisioner_kid: "{{ serve_my_kind_certification_private_ca_provisioner_config_raw.stdout | from_json | json_query('data.\"ca.json\"') | from_json | json_query('authority.provisioners[0].key.kid') }}"
+    serve_my_kind_certification_private_ca_provisioner_password_secret: "{{ serve_my_kind_cluster_name }}-step-ca-provisioner-password"
+
+- name: "Render issuers template"
+  ansible.builtin.template:
+    src: "cluster-issuers.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/cluster-issuers.yml"
+
+- name: "Create certificate issuers"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    src: "{{ serve_my_kind_manifests_and_configs_path }}/cluster-issuers.yml"
+    state: "present"
+    wait: true

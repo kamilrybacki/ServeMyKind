@@ -49,7 +49,13 @@ hubble:
     ingress:
       enabled: true
       className: "{{ serve_my_kind_ingress_type }}"
+      annotations:
+        cert-manager.io/cluster-issuer: "{{ serve_my_kind_ca_issuer_name }}"
       hosts:
         - hubble-ui.{{ serve_my_kind_cluster_domain }}
+      tls:
+        - secretName: hubble-ui-tls
+          hosts:
+            - hubble-ui.{{ serve_my_kind_cluster_domain }}
 
   {% endif %}
