@@ -4,6 +4,11 @@
     repo_url: "https://smallstep.github.io/helm-charts"
     state: "present"
 
+- name: "Render step-certificates values"
+  ansible.builtin.template:
+    src: "step-certificates.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/step-certificates-values.yml"
+
 - name: "Install step-certificates Helm Chart"
   kubernetes.core.helm:
     name: "step-certificates"
@@ -11,14 +16,8 @@
     namespace: "{{ serve_my_kind_certification_namespace }}"
     create_namespace: true
     chart_ref: "smallstep/step-certificates"
-    values:
-      fullnameOverride: "{{ serve_my_kind_cluster_name }}-step-ca"
-      service:
-        targetPort: "{{ serve_my_kind_certification_private_ca_port }}"
-      ca:
-        name: "{{ serve_my_kind_cluster_name | regex_replace('-', ' ') }} | title }}"
-      provisioner:
-        name: "{{ serve_my_kind_cluster_name }}-provisioner"
+    values_files:
+      - "{{ serve_my_kind_manifests_and_configs_path }}/step-certificates-values.yml"
     wait: true
 
 - name: "Install step-issuer Helm Chart"
@@ -43,9 +42,8 @@
 
 - name: "Store FQDN of the private CA data for step-issuer"
   set_fact:
-    serve_my_kind_certification_private_ca_fqdn: "{{ serve_my_kind_cluster_name }}-step-ca.{{ serve_my_kind_certification_namespace }}.svc.{{ serve_my_kind_cluster_domain }}"
+
     serve_my_kind_certification_private_ca_root: "{{ serve_my_kind_certification_private_ca_root_raw.stdout | from_json | json_query('data.\"root_ca.crt\"') | trim | b64encode }}"
-    serve_my_kind_certification_private_ca_provisioner_name: "{{ serve_my_kind_cluster_name }}-provisioner"
     serve_my_kind_certification_private_ca_provisioner_kid: "{{ serve_my_kind_certification_private_ca_provisioner_config_raw.stdout | from_json | json_query('data.\"ca.json\"') | from_json | json_query('authority.provisioners[0].key.kid') }}"
     serve_my_kind_certification_private_ca_provisioner_password_secret: "{{ serve_my_kind_cluster_name }}-step-ca-provisioner-password"
 

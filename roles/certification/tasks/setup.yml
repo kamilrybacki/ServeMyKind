@@ -18,3 +18,29 @@
 
 - name: "Setup certificate issuers"
   ansible.builtin.include_tasks: "issuers.yml"
+
+- name: "Get the name of Pod running step-certificates"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get pods -n {{ serve_my_kind_certification_namespace }} --selector=job-name=step-certificates -o jsonpath='{.items[0].metadata.name}'"
+  register: serve_my_kind_certification_step_certificates_pod_name
+
+- name: "Remove the step-certificates setup job"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    state: "absent"
+    definition:
+      apiVersion: "batch/v1"
+      kind: "Job"
+      metadata:
+        name: "step-certificates"
+        namespace: "{{ serve_my_kind_certification_namespace }}"
+
+- name: "Delete the step-certificates Pod"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    state: "absent"
+    definition:
+      apiVersion: "v1"
+      kind: "Pod"
+      metadata:
+        name: "{{ serve_my_kind_certification_step_certificates_pod_name.stdout }}"
+        namespace: "{{ serve_my_kind_certification_namespace }}"

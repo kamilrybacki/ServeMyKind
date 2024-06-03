@@ -12,7 +12,7 @@ metadata:
   name: "{{ serve_my_kind_ca_issuer_name }}"
   namespace: "{{ serve_my_kind_certification_namespace }}"
 spec:
-  url: "https://{{ serve_my_kind_certification_private_ca_fqdn }}"
+  url: "https://{{ serve_my_kind_certification_private_ca_service_fqdn }}"
   caBundle: "{{ serve_my_kind_certification_private_ca_root }}"
   provisioner:
     name: "{{ serve_my_kind_certification_private_ca_provisioner_name }}"
