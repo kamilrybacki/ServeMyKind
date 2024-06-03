@@ -94,4 +94,3 @@
     - name: "Rollout restart CoreDNS deployment manually via kubectl"
       ansible.builtin.command:
         cmd: "kubectl rollout restart deployment coredns -n kube-system --kubeconfig={{ serve_my_kind_kubeconfig_path }}"
-  when: "serve_my_kind_use_coredns"

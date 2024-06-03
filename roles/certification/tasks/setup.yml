@@ -4,6 +4,11 @@
     state: "present"
     repo_url: "https://charts.jetstack.io"
 
+- name: "Render cert-manager values"
+  ansible.builtin.template:
+    src: "cert-manager.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/cert-manager.yml"
+
 - name: "Install the cert-manager Helm Chart"
   kubernetes.core.helm:
     name: "cert-manager"
@@ -11,9 +16,8 @@
     release_namespace: "{{ serve_my_kind_networking_namespace }}"
     state: "present"
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
-    values:
-      installCRDs:
-        true
+    values_files:
+      - "{{ serve_my_kind_manifests_and_configs_path }}/cert-manager.yml"
     wait: true
 
 - name: "Setup certificate issuers"

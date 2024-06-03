@@ -1,0 +1,10 @@
+defaultBackend:
+  enabled: true
+fullnameOverride: "{{ serve_my_kind_cluster_name }}-ingress"
+controller:
+  service:
+    externalTrafficPolicy: Local
+    type: LoadBalancer
+ingressClassResource:
+  name: "{{ serve_my_kind_ingress_type }}"
+  default: true

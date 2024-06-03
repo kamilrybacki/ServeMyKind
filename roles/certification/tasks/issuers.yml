@@ -42,7 +42,6 @@
 
 - name: "Store FQDN of the private CA data for step-issuer"
   set_fact:
-
     serve_my_kind_certification_private_ca_root: "{{ serve_my_kind_certification_private_ca_root_raw.stdout | from_json | json_query('data.\"root_ca.crt\"') | trim | b64encode }}"
     serve_my_kind_certification_private_ca_provisioner_kid: "{{ serve_my_kind_certification_private_ca_provisioner_config_raw.stdout | from_json | json_query('data.\"ca.json\"') | from_json | json_query('authority.provisioners[0].key.kid') }}"
     serve_my_kind_certification_private_ca_provisioner_password_secret: "{{ serve_my_kind_cluster_name }}-step-ca-provisioner-password"
