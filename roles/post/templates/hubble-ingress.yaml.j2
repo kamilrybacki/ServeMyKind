@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ serve_my_kind_cluster_name }}-hubble-ui-ingress
+  namespace: "{{ serve_my_kind_networking_namespace }}"
+  annotations:
+    cert-manager.io/issuer: "{{ serve_my_kind_ca_issuer_name }}"
+    cert-manager.io/issuer-group: certmanager.step.sm
+    cert-manager.io/issuer-kind: StepClusterIssuer
+spec:
+    rules:
+    - host: hubble-ui.{{ serve_my_kind_cluster_domain }}
+        http:
+        paths:
+        - path: /
+            pathType: Prefix
+            backend:
+            service:
+                name: hubble-ui
+                port:
+                number: 80
+    tls:
+    - hosts:
+        - hubble-ui.{{ serve_my_kind_cluster_domain }}
+        secretName: hubble-ui-tls

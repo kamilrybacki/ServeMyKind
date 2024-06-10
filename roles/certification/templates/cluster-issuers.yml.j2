@@ -9,7 +9,7 @@ spec:
 apiVersion: "certmanager.step.sm/v1beta1"
 kind: "StepClusterIssuer"
 metadata:
-  name: "{{ serve_my_kind_ca_issuer_name }}-step"
+  name: "{{ serve_my_kind_ca_issuer_name }}"
   namespace: "{{ serve_my_kind_certification_namespace }}"
 spec:
   url: "https://{{ serve_my_kind_certification_private_ca_service_fqdn }}"
@@ -36,15 +36,15 @@ spec:
   renewBefore: "{{ _serve_my_kind_certification_certificate_hours_validity / _serve_my_kind_certification_certificate_renewal_threshold | int }}h"
   isCA: false
   issuerRef:
-    name: "{{ serve_my_kind_ca_issuer_name }}-step"
+    name: "{{ serve_my_kind_ca_issuer_name }}"
     kind: StepClusterIssuer
     group: certmanager.step.sm
 ---
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: "{{ serve_my_kind_ca_issuer_name }}"
+  name: "cluster-certificate-info"
   namespace: "{{ serve_my_kind_certification_namespace }}"
-spec:
-  ca:
-    secretName: "{{ _serve_my_kind_certification_domain_ca_name }}-secret"
+data:
+    name: "{{ _serve_my_kind_certification_domain_ca_name }}"
+immutable: true

@@ -41,21 +41,3 @@ hubble:
     enabled: {{ serve_my_kind_cni_hubble_relay_enabled }}
   metrics:
     enabled: {{ serve_my_kind_cni_hubble_metrics_enabled }}
-
-  {% if serve_my_kind_cni_hubble_ui_enabled %}
-
-  ui:
-    enabled: {{ serve_my_kind_cni_hubble_ui_enabled }}
-    ingress:
-      enabled: true
-      className: "{{ serve_my_kind_ingress_type }}"
-      annotations:
-        cert-manager.io/cluster-issuer: "{{ serve_my_kind_ca_issuer_name }}"
-      hosts:
-        - hubble-ui.{{ serve_my_kind_cluster_domain }}
-      tls:
-        - secretName: hubble-ui-tls
-          hosts:
-            - hubble-ui.{{ serve_my_kind_cluster_domain }}
-
-  {% endif %}

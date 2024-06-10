@@ -14,6 +14,7 @@
       - ansible.builtin.include_role: { name: "cni", tasks_from: "setup" }
       - ansible.builtin.include_role: { name: "certification", tasks_from: "setup" }
       - ansible.builtin.include_role: { name: "dns", tasks_from: "configure" }
+      - ansible.builtin.include_role: { name: "post", tasks_from: "endpoints" }
       rescue:
         - name: "Remove failed Kind Cluster deployment"
           ansible.builtin.command: "kind delete clusters {{ serve_my_kind_cluster_name }}"

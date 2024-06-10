@@ -1,0 +1,14 @@
+- name: "Establish HTTPS endpoint for Hubble UI"
+  block:
+    - name: "Render the template for Hubble UI Ingress"
+      ansible.builtin.template:
+        src: "hubble-ingress.yaml.j2"
+        dest: "{{ serve_my_kind_manifests_and_configs_path }}/hubble-ingress.yaml"
+    
+    - name: "Create the Ingress for Hubble UI"
+      kubernetes.core.k8s:
+        kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+        src: "{{ serve_my_kind_manifests_and_configs_path }}/hubble-ingress.yaml"
+        state: "present"
+        wait: true
+  when: serve_my_kind_hubble_enabled
