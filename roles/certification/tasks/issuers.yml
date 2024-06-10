@@ -14,7 +14,6 @@
     name: "step-certificates"
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
     namespace: "{{ serve_my_kind_certification_namespace }}"
-    create_namespace: true
     chart_ref: "smallstep/step-certificates"
     values_files:
       - "{{ serve_my_kind_manifests_and_configs_path }}/step-certificates-values.yml"

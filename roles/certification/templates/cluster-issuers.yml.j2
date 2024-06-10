@@ -32,10 +32,11 @@ spec:
   commonName: "{{ serve_my_kind_cluster_domain }}"
   dnsNames:
     - "{{ serve_my_kind_cluster_domain }}"
-  duration: "{{ _serve_my_kind_certification_certificates_days }}h"
-  renewBefore: "24h"
+  duration: "{{ _serve_my_kind_certification_certificate_hours_validity }}h"
+  renewBefore: "{{ _serve_my_kind_certification_certificate_hours_validity / _serve_my_kind_certification_certificate_renewal_threshold | int }}h"
+  isCA: false
   issuerRef:
-    name: "{{ serve_my_kind_ca_issuer_name }}"
+    name: "{{ serve_my_kind_ca_issuer_name }}-step"
     kind: StepClusterIssuer
     group: certmanager.step.sm
 ---

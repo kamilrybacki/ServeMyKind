@@ -13,3 +13,5 @@ serve_my_kind_network_cidr: "172.30.0.0/16"
 
 serve_my_kind_ingress_type: "nginx"
 serve_my_kind_configure_dns: true
+
+serve_my_kind_purge_failed_deployments: true

@@ -1,3 +1,6 @@
+_serve_my_kind_certification_cert_manager_version: "1.15.0"
+_serve_my_kind_certification_cert_manager_crds_manifest_url: "https://github.com/cert-manager/cert-manager/releases/download/v{{ _serve_my_kind_certification_cert_manager_version }}/cert-manager.crds.yaml"
+
 _serve_my_kind_certification_private_ca_health_retries: 10
 _serve_my_kind_certification_private_ca_health_delay: 5
 
@@ -8,4 +11,5 @@ _serve_my_kind_certification_domain_ca_name: "{{ serve_my_kind_cluster_name }}-c
 _serve_my_kind_certification_domain_ca_secret_name: "{{ serve_my_kind_cluster_name }}-cert-tls"
 _serve_my_kind_certification_domain_ca_key_size: 2048
 
-_serve_my_kind_certification_certificates_days: 365
+_serve_my_kind_certification_certificate_hours_validity: 24  # in hours
+_serve_my_kind_certification_certificate_renewal_threshold: 10  # in %
