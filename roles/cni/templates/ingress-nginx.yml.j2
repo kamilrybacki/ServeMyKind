@@ -6,4 +6,7 @@ controller:
     externalTrafficPolicy: Local
     type: LoadBalancer
 ingressClassResource:
-  name: nginx
+  name: "{{ serve_my_kind_default_ingress_class }}"
+  default: true
+  aliases:
+    - "default-ingress-class"

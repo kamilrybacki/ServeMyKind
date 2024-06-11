@@ -25,8 +25,15 @@ operator:
 rollOutCiliumPods: true
 
 hubble:
-  enabled: {{ serve_my_kind_cni_hubble_enabled }}
+  enabled: {{ serve_my_kind_hubble_enabled }}
+
+  {% if serve_my_kind_hubble_enabled %}
+
   relay:
-    enabled: {{ serve_my_kind_cni_hubble_relay_enabled }}
+    enabled: {{ serve_my_kind_hubble_relay_enabled }}
   metrics:
-    enabled: {{ serve_my_kind_cni_hubble_metrics_enabled }}
+    enabled: {{ serve_my_kind_hubble_metrics_enabled }}
+  ui:
+    enabled: {{ serve_my_kind_hubble_ui_enabled }}
+
+  {% endif %}

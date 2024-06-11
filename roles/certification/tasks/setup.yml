@@ -31,26 +31,58 @@
 
 - name: "Get the name of Pod running step-certificates"
   ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get pods -n {{ serve_my_kind_certification_namespace }} --selector=job-name=step-certificates -o jsonpath='{.items[0].metadata.name}'"
+  ignore_errors: true
   register: serve_my_kind_certification_step_certificates_pod_name
 
-- name: "Remove the step-certificates setup job"
-  kubernetes.core.k8s:
-    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
-    state: "absent"
-    definition:
-      apiVersion: "batch/v1"
-      kind: "Job"
-      metadata:
-        name: "step-certificates"
-        namespace: "{{ serve_my_kind_certification_namespace }}"
+- name: "Clean up the step-certificates setup"
+  block:
+  - name: "Remove the step-certificates setup job"
+    kubernetes.core.k8s:
+      kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+      state: "absent"
+      definition:
+        apiVersion: "batch/v1"
+        kind: "Job"
+        metadata:
+          name: "step-certificates"
+          namespace: "{{ serve_my_kind_certification_namespace }}"
 
-- name: "Delete the step-certificates Pod"
-  kubernetes.core.k8s:
-    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
-    state: "absent"
-    definition:
-      apiVersion: "v1"
-      kind: "Pod"
-      metadata:
-        name: "{{ serve_my_kind_certification_step_certificates_pod_name.stdout }}"
-        namespace: "{{ serve_my_kind_certification_namespace }}"
+  - name: "Delete the step-certificates Pod"
+    kubernetes.core.k8s:
+      kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+      state: "absent"
+      definition:
+        apiVersion: "v1"
+        kind: "Pod"
+        metadata:
+          name: "{{ serve_my_kind_certification_step_certificates_pod_name.stdout }}"
+          namespace: "{{ serve_my_kind_certification_namespace }}"
+  when: serve_my_kind_certification_step_certificates_pod_name is defined
+
+- name: "Find the name of Ingress Nginx contoller Deployment"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get deployment -n {{ serve_my_kind_networking_namespace }} -l app.kubernetes.io/name=ingress-nginx -o jsonpath='{.items[0].metadata.name}'"
+  register: _serve_my_kind_certification_nginx_ingress_controller_name
+
+- name: "Add the argument to the Ingress Nginx controller Deployment"
+  ansible.builtin.command: >
+    kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} patch deployment {{ _serve_my_kind_certification_nginx_ingress_controller_name.stdout }}
+    -n {{ serve_my_kind_networking_namespace }}
+    --type='json'
+    -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--default-ssl-certificate={{ serve_my_kind_certification_namespace }}/{{ _serve_my_kind_certification_domain_ca_name }}-secret" }]'
+
+- name: "Download Root CA certificate from the ConfigMap"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get configmap -n {{ serve_my_kind_certification_namespace }} {{ serve_my_kind_cluster_name }}-step-ca-certs -o json"
+  register: serve_my_kind_certification_domain_ca_root
+
+- name: "Get the Root CA certificate from the ConfigMap"
+  ansible.builtin.command: |
+    echo "{{ serve_my_kind_certification_domain_ca_root.stdout | trim }}" | jq -r '.data."root_ca.crt"' | base64 -d
+  register: serve_my_kind_certification_domain_ca_root_pem
+
+- name: "Save the Root CA certificate to the host machine"
+  ansible.builtin.copy:
+    content: "{{ serve_my_kind_certification_domain_ca_root_pem.stdout }}"
+    dest: "{{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}.crt"
+
+- name: "Update CA certificates on the host machine"
+  ansible.builtin.command: "update-ca-certificates"

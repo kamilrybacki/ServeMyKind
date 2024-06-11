@@ -8,6 +8,7 @@ metadata:
     cert-manager.io/issuer-group: certmanager.step.sm
     cert-manager.io/issuer-kind: StepClusterIssuer
 spec:
+    ingressClassName: "{{ serve_my_kind_default_ingress_class }}"
     rules:
     - host: hubble-ui.{{ serve_my_kind_cluster_domain }}
       http:

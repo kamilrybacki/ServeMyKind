@@ -1,0 +1,7 @@
+- name: "Remove cluster SSL certificates from trusted ones on host"
+  ansible.builtin.file:
+    path: "{{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}.crt"
+    state: "absent"
+
+- name: "Reload the trusted SSL certificates"
+  ansible.builtin.command: "update-ca-certificates"
