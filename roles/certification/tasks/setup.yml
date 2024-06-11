@@ -75,13 +75,12 @@
   register: serve_my_kind_certification_domain_ca_root
 
 - name: "Get the Root CA certificate from the ConfigMap"
-  ansible.builtin.command: |
-    echo "{{ serve_my_kind_certification_domain_ca_root.stdout | trim }}" | jq -r '.data."root_ca.crt"' | base64 -d
-  register: serve_my_kind_certification_domain_ca_root_pem
+  ansible.builtin.set_fact:
+    serve_my_kind_certification_domain_ca_root_pem: "{{ serve_my_kind_certification_domain_ca_root.stdout | from_json | json_query('data.\"root_ca.crt\"') }}"
 
 - name: "Save the Root CA certificate to the host machine"
   ansible.builtin.copy:
-    content: "{{ serve_my_kind_certification_domain_ca_root_pem.stdout }}"
+    content: "{{ serve_my_kind_certification_domain_ca_root_pem }}"
     dest: "{{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}.crt"
 
 - name: "Update CA certificates on the host machine"
