@@ -1,7 +1,0 @@
-fullnameOverride: "{{ serve_my_kind_cluster_name }}-step-ca"
-ca:
-  name: "{{ serve_my_kind_cluster_name | regex_replace('-', ' ') | title }}"
-  url: "https://{{ serve_my_kind_certification_private_ca_service_fqdn }}"
-  dns: "{{ serve_my_kind_certification_private_ca_service_fqdn }}"
-  provisioner:
-    name: "{{ serve_my_kind_certification_private_ca_provisioner_name }}"

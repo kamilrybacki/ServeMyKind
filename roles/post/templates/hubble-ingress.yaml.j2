@@ -5,8 +5,6 @@ metadata:
   namespace: "{{ serve_my_kind_networking_namespace }}"
   annotations:
     cert-manager.io/issuer: "{{ serve_my_kind_ca_issuer_name }}"
-    cert-manager.io/issuer-group: certmanager.step.sm
-    cert-manager.io/issuer-kind: StepClusterIssuer
 spec:
     ingressClassName: "{{ serve_my_kind_default_ingress_class }}"
     rules:
