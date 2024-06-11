@@ -24,17 +24,6 @@ operator:
   rollOutPods: true
 rollOutCiliumPods: true
 
-{% if serve_my_kind_ingress_type == "cilium" %}
-
-ingressController:
-  loadBalancerMode: "dedicated"
-  enabled: true
-  default: true
-  service:
-    name: "{{ serve_my_kind_cluster_name }}-ingress-controller"
-
-{% endif %}
-
 hubble:
   enabled: {{ serve_my_kind_cni_hubble_enabled }}
   relay:

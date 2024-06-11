@@ -63,7 +63,6 @@ These variables are to be defined in the `environments/<ENVIRONMENT>/group_vars/
     * (*optional*) `listenAddress` - address to listen on (default: `"127.0.0.1"`)
     * (*optional*) `protocol` - protocol to use (default: `"TCP"`)
   * (*optional*) `extraKubeadmPatches` - list of extra kubeadm patches to apply to the node (default: `[]`)
-* (*optional*) `kind_with_ingress_setup_cluster_ingress_type` - type of the ingress controller to deploy (default: `"ingress-nginx"`)
 * (*optional*) `serve_my_kind_configure_dns` - whether to configure DNS for the cluster on host machine (default: `true`)
 * (*optional*) `serve_my_kind_configure_dns_network_manager_install` - whether to install NetworkManager (default: `true`)
 * (*optional*) `serve_my_kind_configure_dns_dnsmasq_install` - whether to install dnsmasq (default: `true`)

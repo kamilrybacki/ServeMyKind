@@ -10,16 +10,15 @@ metadata:
 spec:
     rules:
     - host: hubble-ui.{{ serve_my_kind_cluster_domain }}
-        http:
+      http:
         paths:
         - path: /
-            pathType: Prefix
-            backend:
+          pathType: Prefix
+          backend:
             service:
-                name: hubble-ui
-                port:
+              name: hubble-ui
+              port:
                 number: 80
     tls:
     - hosts:
         - hubble-ui.{{ serve_my_kind_cluster_domain }}
-        secretName: hubble-ui-tls

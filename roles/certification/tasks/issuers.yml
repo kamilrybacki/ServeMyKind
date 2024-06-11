@@ -56,3 +56,14 @@
     src: "{{ serve_my_kind_manifests_and_configs_path }}/cluster-issuers.yml"
     state: "present"
     wait: true
+
+- name: "Find the name of Ingress Nginx contoller Deployment"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} get deployment -n {{ serve_my_kind_networking_namespace }} -l app.kubernetes.io/name=ingress-nginx -o jsonpath='{.items[0].metadata.name}'"
+  register: _serve_my_kind_certification_nginx_ingress_controller_name
+
+- name: "Add the argument to the Ingress Nginx controller Deployment"
+  ansible.builtin.command: >
+    kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} patch deployment {{ _serve_my_kind_certification_nginx_ingress_controller_name.stdout }}
+    -n {{ serve_my_kind_networking_namespace }}
+    --type='json'
+    -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--default-ssl-certificate={{ serve_my_kind_certification_namespace }}/{{ _serve_my_kind_certification_domain_ca_name }}-secret" }]'

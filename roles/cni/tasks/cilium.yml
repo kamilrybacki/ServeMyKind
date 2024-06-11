@@ -35,7 +35,3 @@
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
     values_files:
       - "{{ serve_my_kind_manifests_and_configs_path }}/cilium.yml"
-
-- debug:
-    msg: "Cilium Ingress enabled!"
-  when: serve_my_kind_ingress_type == "cilium"

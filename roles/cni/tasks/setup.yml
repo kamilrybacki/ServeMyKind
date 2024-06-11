@@ -6,4 +6,3 @@
 
 - name: "Install NGINX Ingress Controller"
   ansible.builtin.include_tasks: "ingress-nginx.yml"
-  when: serve_my_kind_ingress_type == "nginx"

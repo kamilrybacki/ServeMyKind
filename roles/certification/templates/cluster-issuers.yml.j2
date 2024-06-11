@@ -34,7 +34,7 @@ spec:
     - "{{ serve_my_kind_cluster_domain }}"
   duration: "{{ _serve_my_kind_certification_certificate_hours_validity }}h"
   renewBefore: "{{ _serve_my_kind_certification_certificate_hours_validity / _serve_my_kind_certification_certificate_renewal_threshold | int }}h"
-  isCA: false
+  isCA: true
   issuerRef:
     name: "{{ serve_my_kind_ca_issuer_name }}"
     kind: StepClusterIssuer
@@ -43,8 +43,12 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "cluster-certificate-info"
+  name: "{{ serve_my_kind_cluster_name }}-certification-info"
   namespace: "{{ serve_my_kind_certification_namespace }}"
 data:
-    name: "{{ _serve_my_kind_certification_domain_ca_name }}"
+  clusterCertificate: "{{ _serve_my_kind_certification_domain_ca_name }}"
+  clusterCertificateSecret: "{{ _serve_my_kind_certification_domain_ca_name }}-secret"
+  issuer: "{{ serve_my_kind_ca_issuer_name }}"
+  issuerGroup: "certmanager.step.sm"
+  issuerKind: "StepClusterIssuer"
 immutable: true
