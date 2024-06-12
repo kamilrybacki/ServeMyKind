@@ -34,7 +34,7 @@ ansible-playbook -i ./environments/<ENVIRONMENT> install.yml
 
 After running the playbook, all current Internet connections will be disconnected for a short period due to the DNS configuration being applied by restarting the NetworkManager service.
 
-To change the group of target hosts, edit the `apply.yml` file accordingly.
+To change the group of target hosts, edit the `install.yml` file accordingly.
 
 **The default group of target hosts is set to**: `hosts: "all"`.
 
