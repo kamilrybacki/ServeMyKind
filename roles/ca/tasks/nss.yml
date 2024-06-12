@@ -5,9 +5,6 @@
       register: _serve_my_kind_ca_nss_databases
       ignore_errors: true
 
-    - debug:
-        var: _serve_my_kind_ca_nss_databases.stdout_lines
-
     - name: "Modify found NSS{{ nss.version }} databases"
       block:
         - name: "Remove cluster root CA from NSS{{ nss.version }} databases"
