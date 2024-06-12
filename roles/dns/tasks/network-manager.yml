@@ -21,4 +21,4 @@
     name: "NetworkManager"
     enabled: true
     state: "started"
-  when: "network_manager_running_check.rc != 0"
+  when: "network_manager_running_check.status != 'started'"
