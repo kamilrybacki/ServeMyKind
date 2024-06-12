@@ -56,6 +56,8 @@ To remove the cluster and other assets on host machine (like certificates with t
 
     The playbook **will** install dnsmasq and NetworkManager if they are not present on the host machine! This is required for the DNS configuration to work properly. *(In the future, other DNS configuration methods may be supported.)*
 
+* kube-proxy is **DISABLED** and CoreDNS is used
+
 ## Roles
 
 * `cluster` - installs Kind cluster and attached freshly generated CA certificate
@@ -99,6 +101,17 @@ Below is a list of variables used in the Ansible playbook. These variables can b
 There is also a plethora of internal variables (prefixed with `_`) that are omitted from this list. They are used for internal purposes and gnerally should not be modified.
 
 Each role has its own set of variables, which are defined in the `vars/main.yml` file of the role.
+
+## Extra info
+
+By default, all Ingress resources that enable TLS
+and do not specify the secret containing a certificate
+will use the generated root cert.
+
+Information about CA secrets and cert-manager Issuers
+created via this playbook is stored in a ConfigMap
+located in the certification namespace under a name:
+`"{{ serve_my_kind_cluster_name }}-cert-config"`.
 
 ## Resources
 
