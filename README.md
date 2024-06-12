@@ -1,4 +1,4 @@
-# ServeMyKind - Kind local cluster with NGINX ingress controller and DNS configuration
+# ServeMyKind - Playbook for batteries-included KinD cluster 🔋🐋
 
 <img
     src='.github/assets/SmK.svg'
@@ -9,9 +9,16 @@
 
 This Ansible playbook is designed to deploy a local Kind cluster with NGINX ingress controller and DNS configuration which allows to resolve the services by their FQDNs from the perspective of the host machine.
 
+The resulting cluster is intended to be used for development and testing purposes, where the user can deploy applications and services and access them via the host machine's browser, similar to a production environment where services are accessed via a domain name.
+
+Everything happens *automagically*, 🧙‍♂️ - the **cluster-specific** root CA is generated, attached to KinD nodes operating on the dedicated subnet, ingress
+configuration is applied, and DNS is configured on the host machine.
+
+You can literally name Your cluster `my.k00bernetes` and access it via `https://<service>.my.k00bernetes`! 🚀
+
 ## Requirements
 
-Tasks defined in this playbook **require sudo privileges** to be executed.
+Tasks defined in this playbook **require sudo privileges** within the shell environment in which they are executed.
 
 For Ansible:
 
@@ -22,10 +29,8 @@ For Ansible:
 To install Kind cluster (if not present), apply NGINX ingress manifests and DNS configuration, and run the following command:
 
 ```bash
-ansible-playbook -i ./environments/<ENVIRONMENT> install.yml --ask-become-pass
+ansible-playbook -i ./environments/<ENVIRONMENT> install.yml
 ```
-
-**NOTE**: The `--ask-become-pass` flag is required to provide the sudo password for the host machine.
 
 After running the playbook, all current Internet connections will be disconnected for a short period due to the DNS configuration being applied by restarting the NetworkManager service.
 
@@ -33,48 +38,35 @@ To change the group of target hosts, edit the `apply.yml` file accordingly.
 
 **The default group of target hosts is set to**: `hosts: "all"`.
 
-To remove the cluster, use the `uninstall.yml` playbook.
+To remove the cluster and other assets on host machine (like certificates with their auto-untrusting), use the `uninstall.yml` playbook.
+
+## Assumptions
+
+**READ CAREFULLY BEFORE RUNNING THE PLAYBOOK!**
+
+* The playbook is executed on a Linux machine with at least Python 3 installed:
+
+    The playbook is designed to work on Linux machines, as it uses NetworkManager and dnsmasq to configure DNS. Also, all of the paths use the Linux filesystem structure, cba to make it work on Windows/Mac as those are not my OSes of choice. 😅
+
+* The machine has Docker, Ansible and Helm installed:
+
+    I mean, just look at the tasks in the playbook: like 80% of them are about botching together a KinD cluster with somewhat sketchy manifests.
+
+* Networking is managed by a combo of NetworkManager and dnsmasq:
+
+    The playbook **will** install dnsmasq and NetworkManager if they are not present on the host machine! This is required for the DNS configuration to work properly. *(In the future, other DNS configuration methods may be supported.)*
 
 ## Roles
 
-* `ensure-tools` - Installs Kind and K8s administration tools if not present
-* `setup-cluster` - Deploys Kind cluster with NGINX ingress controller
-* `configure-dns` - Configures DNS for the cluster to be able to resolve the services by their FQDNs
+* `cluster` - installs Kind cluster and attached freshly generated CA certificate
+* `cni` - installs Cilium CNI, enables load balancing using MetalLB and installs NGINX ingress controller
+* `dns` - configures DNS for the cluster on host machine, modifying its NetworkManager and dnsmasq configuration files
+* `ca` - enables certificate generation for the cluster via cert-manager and installs the CA certificate on the host machine (trusts it across the system)
+* `post` - applies additional manifests to the cluster (e.g. Helm charts, custom resources, etc.)
 
 ## Variables
 
-As default, the cluster will be created with one node of the `control-plane` role.
-These variables are to be defined in the `environments/<ENVIRONMENT>/group_vars/<group_name>.yml` file:
-
-* `serve_my_kind_cluster_name` - cluster name suffix (default: `"kind-local"`), used to generate the cluster domain by substituting dashes with dots eg. `kind-local` -> `kind.local`
-* (*optional*) `serve_my_kind_manifests_and_configs_path` - the path where auxiliary files e.g. Jinja2 templates will be rendered to **on host machine** that will be applying manifests to a K8s cluster (default: `"/tmp"`)
-* (*optional*) `serve_my_kind_kubeconfig_path` - path to Kubeconfig **on the host machine** to be used i.e. where the cluster entry/context will be added (default: `"{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"`)
-* (*optional*) `serve_my_kind_setup_cluster_special_nodes` - definition of extra nodes (default: `[]`)
-  Each node is defined as a dictionary with the following keys:
-  * `role` - node role (available: `"worker"`, `"control-plane"`)
-  * `memory` - human-readable memory size (e.g. `"1Gi"`)
-  * `cpu` - number of CPUs (e.g. `2`)
-  * `amount` - number of nodes with the same configuration (default: `1`)
-  * (*optional*) `extraMounts` - list of extra mounts to apply to the node (default: `[]`):
-    * `containerPath` - container path to mount to
-    * `hostPath` - host path to mount
-    * (*optional*) `readOnly` - whether the mount should be read-only (default: `false`)
-    * (*optional*) `selinuxRelabel` - whether the mount should be relabeled by SELinux (default: `false`)
-    * (*optional*) `mountPropagation` - mount propagation mode (default: `"None"`)
-  * (*optional*) `extraLabels` - list of extra labels to apply to the node (default: `[]`):
-    * `name` - label key
-    * `value` - label value
-  * (*optional*) `extraPortMappings` - list of extra port mappings to apply to the node (default: `[]`):
-    * `containerPort` - container port to map
-    * `hostPort` - host port to map
-    * (*optional*) `listenAddress` - address to listen on (default: `"127.0.0.1"`)
-    * (*optional*) `protocol` - protocol to use (default: `"TCP"`)
-  * (*optional*) `extraKubeadmPatches` - list of extra kubeadm patches to apply to the node (default: `[]`)
-* (*optional*) `serve_my_kind_configure_dns` - whether to configure DNS for the cluster on host machine (default: `true`)
-* (*optional*) `serve_my_kind_configure_dns_network_manager_install` - whether to install NetworkManager (default: `true`)
-* (*optional*) `serve_my_kind_configure_dns_dnsmasq_install` - whether to install dnsmasq (default: `true`)
-
-**Important**: if for any node type fields `extraMounts` and/or `extraPortMappings` are defined, the `amount` field is automatically set to `1`, even if its value is specified by the user!
+**WIP**
 
 ## Resources
 
