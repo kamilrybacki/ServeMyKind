@@ -11,13 +11,13 @@
           serve_my_kind_cluster_domain: "{{ serve_my_kind_cluster_name | replace('-', '.') }}"
       - ansible.builtin.include_role: { name: "utils", tasks_from: "install" }
       - ansible.builtin.include_role: { name: "cluster", tasks_from: "create" }
+      - ansible.builtin.include_role: { name: "ca", tasks_from: "establish" }
       - ansible.builtin.include_role: { name: "cni", tasks_from: "setup" }
-      - ansible.builtin.include_role: { name: "certification", tasks_from: "setup" }
       - ansible.builtin.include_role: { name: "dns", tasks_from: "configure" }
       - ansible.builtin.include_role: { name: "post", tasks_from: "endpoints" }
       rescue:
         - name: "Remove failed Kind Cluster deployment"
-          ansible.builtin.command: "kind delete clusters {{ serve_my_kind_cluster_name }}"
+          ansible.builtin.include_role: { name: "cluster", tasks_from: "remove" }
           ignore_errors: true
           when: serve_my_kind_purge_failed_deployments
         - ansible.builtin.meta: end_play

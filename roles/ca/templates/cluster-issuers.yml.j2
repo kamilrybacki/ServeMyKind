@@ -1,0 +1,46 @@
+apiVersion: "cert-manager.io/v1"
+kind: "ClusterIssuer"
+metadata:
+  name: "{{ _serve_my_kind_certification_self_signed_issuer_name }}"
+  namespace: "{{ serve_my_kind_certification_namespace }}"
+spec:
+  selfSigned: {}
+---
+apiVersion: "cert-manager.io/v1"
+kind: "ClusterIssuer"
+metadata:
+  name: "{{ serve_my_kind_ca_issuer_name }}"
+  namespace: "{{ serve_my_kind_certification_namespace }}"
+spec:
+    ca:
+        secretName: "{{ serve_my_kind_cluster_name }}-root-ca"
+---
+apiVersion: "cert-manager.io/v1"
+kind: "Certificate"
+metadata:
+  name: "{{ serve_my_kind_cluster_name }}-ca"
+  namespace: "{{ serve_my_kind_certification_namespace }}"
+spec:
+    secretName: "{{ serve_my_kind_cluster_name }}-ca"
+    issuerRef:
+        name: "{{ serve_my_kind_ca_issuer_name }}"
+        kind: "ClusterIssuer"
+    commonName: "{{ serve_my_kind_cluster_domain }}"
+    dnsNames:
+        - "{{ serve_my_kind_cluster_domain }}"
+        - "*.{{ serve_my_kind_cluster_domain }}"
+    duration: "{{ _serve_my_kind_certification_certificate_days_validity * 24 * 60 * 60 }}h"
+    isCA: true
+---
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  name: "{{ serve_my_kind_cluster_name }}-cert-config"
+  namespace: "{{ serve_my_kind_certification_namespace }}"
+data:
+    cluster_domain: "{{ serve_my_kind_cluster_domain }}"
+    root_ca_secret: "{{ serve_my_kind_cluster_name }}-root-ca"
+    wildcard_ca_secret: "{{ serve_my_kind_cluster_name }}-ca"
+    ca_issuer: "{{ serve_my_kind_ca_issuer_name }}"
+    self_signed_issuer: "{{ _serve_my_kind_certification_self_signed_issuer_name }}"
+mutable: false

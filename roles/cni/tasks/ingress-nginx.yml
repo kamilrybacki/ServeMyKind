@@ -18,3 +18,28 @@
     wait_timeout: "{{ _serve_my_kind_cni_ingress_creation_timeout }}"
     values_files:
       - "{{ serve_my_kind_manifests_and_configs_path }}/ingress-nginx.yml"
+
+- name: "Find the name of Ingress Nginx Controller Deployment"
+  ansible.builtin.command: >
+    kubectl
+      --kubeconfig={{ serve_my_kind_kubeconfig_path }}
+      -n
+        {{ serve_my_kind_networking_namespace }}
+      get
+        deployment
+          -l app.kubernetes.io/name=ingress-nginx
+      -o
+        jsonpath='{.items[0].metadata.name}'
+  register: _serve_my_kind_certification_nginx_ingress_controller_name
+
+- name: "Set the wildcard certificate as the default SSL certificate for the Ingress Nginx Controller"
+  ansible.builtin.command: |
+    kubectl
+      --kubeconfig={{ serve_my_kind_kubeconfig_path }}
+      -n
+        {{ serve_my_kind_networking_namespace }}
+      patch
+        deployment
+          {{ _serve_my_kind_certification_nginx_ingress_controller_name.stdout }}
+        --type='json'
+        -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--default-ssl-certificate={{ serve_my_kind_certification_namespace }}/{{ serve_my_kind_cluster_name }}-ca"}]'

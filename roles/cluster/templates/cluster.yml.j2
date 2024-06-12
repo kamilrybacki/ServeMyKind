@@ -42,6 +42,10 @@ nodes:
       hostPort: 443
       protocol: TCP
       listenAddress: 127.0.0.1
+    extraMounts:
+      - hostPath: "{{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.pem"
+        containerPath: /opt/ca-certificates/root-ca.pem
+        readOnly: true
 
 {% for index in range(serve_my_kind_setup_cluster_normal_workers) %}
 
@@ -52,6 +56,10 @@ nodes:
         nodeRegistration:
           kubeletExtraArgs:
             node-labels: smk.cluster-role.worker=worker
+    extraMounts:
+      - hostPath: "{{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.pem"
+        containerPath: /opt/ca-certificates/root-ca.pem
+        readOnly: true
 
 {% endfor %}
 

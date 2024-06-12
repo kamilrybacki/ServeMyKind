@@ -23,6 +23,22 @@
 
 - name: "Setup and configure Kind cluster"
   block:
+    - name: "Generate a new self-signed certificate for the cluster"
+      ansible.builtin.command: >
+        openssl
+          req
+            -x509
+            -nodes
+            -days
+              {{ _serve_my_kind_certification_certificate_days_validity }}
+            -newkey
+              rsa:2048
+            -keyout
+              {{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.key
+            -out
+              {{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.pem
+            -subj "/CN={{ serve_my_kind_cluster_domain }}"
+
     - name: "Create Cluster config from template"
       ansible.builtin.template:
         src: "cluster.yml.j2"
@@ -42,3 +58,12 @@
       register: kind_nginx_ingress_cluster_ready
       until: kind_nginx_ingress_cluster_ready.stdout.find("is running") != -1
   when: serve_my_kind_current_clusters_list.stdout.find(serve_my_kind_cluster_name) == -1
+
+- name: "Add cluster root certificate to trusted ones on host"
+  ansible.builtin.copy:
+    src: "{{ serve_my_kind_host_certificates_dir }}/{{ _serve_my_kind_certification_root_ca_secret_name }}.pem"
+    dest: "/usr/local/share/ca-certificates/{{ _serve_my_kind_certification_root_ca_secret_name }}.crt"
+    mode: "0644"
+
+- name: "Reload the trusted SSL certificates"
+  ansible.builtin.command: "update-ca-certificates"

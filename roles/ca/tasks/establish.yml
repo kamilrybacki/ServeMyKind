@@ -1,0 +1,62 @@
+- name: "Add cert-manager Helm repo if not available"
+  kubernetes.core.helm_repository:
+    name: "jetstack"
+    state: "present"
+    force_update: true
+    repo_url: "https://charts.jetstack.io"
+
+- name: "Render cert-manager values"
+  ansible.builtin.template:
+    src: "cert-manager.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/cert-manager.yml"
+
+- name: "Install cert-manager CRDs manually with kubectl"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} apply -f {{ _serve_my_kind_certification_cert_manager_crds_manifest_url }}"
+
+- name: "Install the cert-manager Helm Chart"
+  kubernetes.core.helm:
+    name: "cert-manager"
+    chart_ref: "jetstack/cert-manager"
+    chart_version: "{{ _serve_my_kind_certification_cert_manager_version }}"
+    release_namespace: "{{ serve_my_kind_certification_namespace }}"
+    create_namespace: true
+    state: "present"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    values_files:
+      - "{{ serve_my_kind_manifests_and_configs_path }}/cert-manager.yml"
+    wait: true
+
+- name: "Read contents of the root CA certificate"
+  ansible.builtin.command: "cat {{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.pem"
+  register: _serve_my_kind_certification_domain_ca_secret_contents
+
+- name: "Read contents of the root CA private key"
+  ansible.builtin.command: "cat {{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.key"
+  register: _serve_my_kind_certification_domain_ca_secret_key_contents
+
+- name: "Create a Secret in {{ serve_my_kind_certification_namespace }} with the root CA certificate"
+  kubernetes.core.k8s:
+    state: "present"
+    definition:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        name: "{{ _serve_my_kind_certification_root_ca_secret_name }}"
+        namespace: "{{ serve_my_kind_certification_namespace }}"
+      data:
+        tls.crt: "{{ _serve_my_kind_certification_domain_ca_secret_contents.stdout | b64encode }}"
+        tls.key: "{{ _serve_my_kind_certification_domain_ca_secret_key_contents.stdout | b64encode }}"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    wait: true
+
+- name: "Render cluster issuers"
+  ansible.builtin.template:
+    src: "cluster-issuers.yml.j2"
+    dest: "{{ serve_my_kind_manifests_and_configs_path }}/cluster-issuers.yml"
+
+- name: "Create cluster issuers"
+  kubernetes.core.k8s:
+    state: "present"
+    src: "{{ serve_my_kind_manifests_and_configs_path }}/cluster-issuers.yml"
+    kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
+    wait: true
