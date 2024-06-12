@@ -1,4 +1,4 @@
-# ServeMyKind - Playbook for batteries-included KinD cluster 🔋🐋
+# ServeMyKind - Batteries-included KinD cluster 🔋🐋
 
 <img
     src='.github/assets/SmK.svg'
