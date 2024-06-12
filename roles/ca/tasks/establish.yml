@@ -11,13 +11,13 @@
     dest: "{{ serve_my_kind_manifests_and_configs_path }}/cert-manager.yml"
 
 - name: "Install cert-manager CRDs manually with kubectl"
-  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} apply -f {{ _serve_my_kind_certification_cert_manager_crds_manifest_url }}"
+  ansible.builtin.command: "kubectl --kubeconfig={{ serve_my_kind_kubeconfig_path }} apply -f {{ _serve_my_kind_ca_cert_manager_crds_manifest_url }}"
 
 - name: "Install the cert-manager Helm Chart"
   kubernetes.core.helm:
     name: "cert-manager"
     chart_ref: "jetstack/cert-manager"
-    chart_version: "{{ _serve_my_kind_certification_cert_manager_version }}"
+    chart_version: "{{ _serve_my_kind_ca_cert_manager_version }}"
     release_namespace: "{{ serve_my_kind_certification_namespace }}"
     create_namespace: true
     state: "present"
@@ -28,11 +28,11 @@
 
 - name: "Read contents of the root CA certificate"
   ansible.builtin.command: "cat {{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.pem"
-  register: _serve_my_kind_certification_domain_ca_secret_contents
+  register: _serve_my_kind_ca_domain_ca_secret_contents
 
 - name: "Read contents of the root CA private key"
   ansible.builtin.command: "cat {{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.key"
-  register: _serve_my_kind_certification_domain_ca_secret_key_contents
+  register: _serve_my_kind_ca_domain_ca_secret_key_contents
 
 - name: "Create a Secret in {{ serve_my_kind_certification_namespace }} with the root CA certificate"
   kubernetes.core.k8s:
@@ -41,11 +41,11 @@
       apiVersion: "v1"
       kind: "Secret"
       metadata:
-        name: "{{ _serve_my_kind_certification_root_ca_secret_name }}"
+        name: "{{ serve_my_kind_cluster_name }}-root-ca-tls"
         namespace: "{{ serve_my_kind_certification_namespace }}"
       data:
-        tls.crt: "{{ _serve_my_kind_certification_domain_ca_secret_contents.stdout | b64encode }}"
-        tls.key: "{{ _serve_my_kind_certification_domain_ca_secret_key_contents.stdout | b64encode }}"
+        tls.crt: "{{ _serve_my_kind_ca_domain_ca_secret_contents.stdout | b64encode }}"
+        tls.key: "{{ _serve_my_kind_ca_domain_ca_secret_key_contents.stdout | b64encode }}"
     kubeconfig: "{{ serve_my_kind_kubeconfig_path }}"
     wait: true
 

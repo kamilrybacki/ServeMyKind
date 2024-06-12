@@ -30,7 +30,7 @@
           -l app.kubernetes.io/name=ingress-nginx
       -o
         jsonpath='{.items[0].metadata.name}'
-  register: _serve_my_kind_certification_nginx_ingress_controller_name
+  register: _serve_my_kind_ca_nginx_ingress_controller_name
 
 - name: "Set the wildcard certificate as the default SSL certificate for the Ingress Nginx Controller"
   ansible.builtin.command: |
@@ -40,6 +40,6 @@
         {{ serve_my_kind_networking_namespace }}
       patch
         deployment
-          {{ _serve_my_kind_certification_nginx_ingress_controller_name.stdout }}
+          {{ _serve_my_kind_ca_nginx_ingress_controller_name.stdout }}
         --type='json'
-        -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--default-ssl-certificate={{ serve_my_kind_certification_namespace }}/{{ serve_my_kind_cluster_name }}-ca"}]'
+        -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--default-ssl-certificate={{ serve_my_kind_certification_namespace }}/{{ serve_my_kind_cluster_name }}-ca-tls"}]'

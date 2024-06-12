@@ -1,0 +1,19 @@
+- name: "Distrust the cluster root certificate in NSS databases"
+  ansible.builtin.include_tasks: "nss.yml"
+  with_items:
+    - { version: "8", type: "dbm", trust: "no" }
+    - { version: "9", type: "sql", trust: "no" }
+  loop_control:
+    loop_var: "nss"
+
+- name: "Remove cluster SSL certificates from trusted ones on host"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: "absent"
+  loop:
+    - "/usr/local/share/ca-certificates/{{ serve_my_kind_cluster_name }}-root-ca.crt"
+    - "{{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.pem"
+    - "{{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.key"
+
+- name: "Reload the trusted SSL certificates"
+  ansible.builtin.command: "update-ca-certificates"

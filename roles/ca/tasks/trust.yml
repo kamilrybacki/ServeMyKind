@@ -1,0 +1,21 @@
+- name: "Ensure certutil is installed"
+  ansible.builtin.package:
+    name: "libnss3-tools"
+    state: "present"
+
+- name: "Add cluster root certificate to trusted ones on host"
+  ansible.builtin.copy:
+    src: "{{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.pem"
+    dest: "/usr/local/share/ca-certificates/{{ serve_my_kind_cluster_name }}-root-ca.crt"
+    mode: "0644"
+
+- name: "Reload the trusted SSL certificates"
+  ansible.builtin.command: "update-ca-certificates"
+
+- name: "Trust the cluster root certificate in NSS8 databases"
+  ansible.builtin.include_tasks: "nss.yml"
+  loop:
+    - { version: "8", type: "dbm", trust: "yes" }
+    - { version: "9", type: "sql", trust: "yes" }
+  loop_control:
+    loop_var: "nss"

@@ -3,6 +3,8 @@ serve_my_kind_kubeconfig_path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.kub
 serve_my_kind_networking_namespace: "kube-networking"
 serve_my_kind_certification_namespace: "kube-certs"
 
+serve_my_kind_certificate_days_validity: 365
+
 serve_my_kind_default_ingress_class: "nginx"
 
 serve_my_kind_hubble_enabled: true

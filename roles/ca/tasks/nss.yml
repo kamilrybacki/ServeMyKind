@@ -1,0 +1,41 @@
+- name: "Update NSS databases to reflect cluster CA changes"
+  block:
+    - name: "Find the path to the users NSS{{ nss.version }} databases"
+      ansible.builtin.command: find /home -name "cert{{ nss.version }}.db"
+      register: _serve_my_kind_ca_nss_databases
+      ignore_errors: true
+
+    - debug:
+        var: _serve_my_kind_ca_nss_databases.stdout_lines
+
+    - name: "Modify found NSS{{ nss.version }} databases"
+      block:
+        - name: "Remove cluster root CA from NSS{{ nss.version }} databases"
+          ansible.builtin.shell: |
+            cert_exists=$(certutil -d "{{ nss.type }}:{{ _database | dirname }}" -L -n "{{ serve_my_kind_cluster_name }} Root CA")
+
+            if [ -n "$cert_exists" ]; then
+              certutil -d "{{ nss.type }}:{{ _database | dirname }}" -D -n "{{ serve_my_kind_cluster_name }} Root CA"
+            fi
+          register: _serve_my_kind_ca_nss_add_root_ca
+          when: nss.trust == 'no'
+          with_items: "{{ _serve_my_kind_ca_nss_databases.stdout_lines }}"
+          loop_control:
+            loop_var: _database
+
+        - name: "Add cluster root CA to NSS{{ nss.version }} databases"
+          ansible.builtin.command: >
+            certutil
+              -d
+                "{{ nss.type }}:{{ _database | dirname }}"
+              -A
+              -t 'C,,'
+              -n 
+                "{{ serve_my_kind_cluster_name }} Root CA"
+              -i 
+                "{{ serve_my_kind_host_certificates_dir }}/{{ serve_my_kind_cluster_name }}-root-ca.pem"
+          register: _serve_my_kind_ca_nss_add_root_ca
+          when: nss.trust == 'yes'
+          with_items: "{{ _serve_my_kind_ca_nss_databases.stdout_lines }}"
+          loop_control:
+            loop_var: _database
