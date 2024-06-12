@@ -5,10 +5,14 @@
   any_errors_fatal: true
   become: true
   tasks:
+    - name: "Set cluster domain"
+      set_fact:
+        serve_my_kind_cluster_domain: "{{ serve_my_kind_cluster_name | replace('-', '.') }}"
+    - name: "Check if there is already a Kind cluster named '{{ serve_my_kind_cluster_name }}'"
+      ansible.builtin.command: "kind get clusters | grep -q '{{ serve_my_kind_cluster_name }}'"
+      register: serve_my_kind_cluster_exists
+      ignore_errors: true
     - block:
-      - name: "Set cluster domain"
-        set_fact:
-          serve_my_kind_cluster_domain: "{{ serve_my_kind_cluster_name | replace('-', '.') }}"
       - ansible.builtin.include_role: { name: "utils", tasks_from: "install" }
       - ansible.builtin.include_role: { name: "cluster", tasks_from: "create" }
       - ansible.builtin.include_role: { name: "cni", tasks_from: "setup" }
@@ -22,3 +26,8 @@
           ignore_errors: true
           when: serve_my_kind_purge_failed_deployments
         - ansible.builtin.meta: end_play
+      when: serve_my_kind_cluster_exists.stdout_lines | length == 0
+    - name: "Fail if Kind cluster '{{ serve_my_kind_cluster_name }}' already exists"
+      fail:
+        msg: "Kind cluster '{{ serve_my_kind_cluster_name }}' already exists. Explicitly remove it before creating a new one."
+      when: serve_my_kind_cluster_exists.stdout_lines | length > 0
