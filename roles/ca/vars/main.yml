@@ -1,11 +1,6 @@
 _serve_my_kind_ca_cert_manager_version: "1.15.0"
 _serve_my_kind_ca_cert_manager_crds_manifest_url: "https://github.com/cert-manager/cert-manager/releases/download/v{{ _serve_my_kind_ca_cert_manager_version }}/cert-manager.crds.yaml"
 
-_serve_my_kind_ca_private_ca_health_retries: 10
-_serve_my_kind_ca_private_ca_health_delay: 5
-
 _serve_my_kind_ca_self_signed_issuer_name: "{{ serve_my_kind_cluster_name }}-ca-self-signed"
-_serve_my_kind_ca_ca_issuer_name: "{{ serve_my_kind_cluster_name }}-ca"
-_serve_my_kind_ca_issuers_creation_timeout: 300
 
 _serve_my_kind_ca_kind_nodes_root_ca_dir: "/etc/ssl/certs"

@@ -1,2 +1,0 @@
-serve_my_kind_cni_load_balancer_l2_advertisement_name: "{{ serve_my_kind_cluster_name }}-l2-advertisement"
-serve_my_kind_cni_load_balancer_address_pool_name: "{{ serve_my_kind_cluster_name }}-default-pool"

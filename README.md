@@ -68,6 +68,12 @@ To remove the cluster and other assets on host machine (like certificates with t
 
 **WIP**
 
+### Internal variables
+
+There is also a plethora of internal variables (prefixed with `_`) that are omitted from this list. They are used for internal purposes and gnerally should not be modified.
+
+Each role has its own set of variables, which are defined in the `vars/main.yml` file of the role.
+
 ## Resources
 
 * [Using dnsmasq for local Kind clusters](https://medium.com/@charled.breteche/using-dnsmasq-with-a-local-kind-clusters-9a27c8987073)

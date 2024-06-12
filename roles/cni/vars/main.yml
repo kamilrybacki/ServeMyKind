@@ -10,3 +10,6 @@ _serve_my_kind_cni_cilium_crds_timeout: 300
 _serve_my_kind_cni_ingress_creation_timeout: "300s"
 _serve_my_kind_cni_load_balancer_creation_timeout: "300s"
 _serve_my_kind_cni_load_balancer_pools_creation_timeout: 300
+
+_serve_my_kind_cni_load_balancer_l2_advertisement_name: "{{ serve_my_kind_cluster_name }}-l2-advertisement"
+_serve_my_kind_cni_load_balancer_address_pool_name: "{{ serve_my_kind_cluster_name }}-default-pool"

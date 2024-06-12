@@ -11,12 +11,12 @@
   block:
     - name: "Choose AMD URL for {{ tool_name }}"
       set_fact:
-        tool_url: "{{ _serve_my_kind_ensure_tools_x86_64_urls[tool_name]}}" 
+        tool_url: "{{ _serve_my_kind_utils_x86_64_urls[tool_name]}}" 
       when: host_arch == "x86_64"
     
     - name: "Choose ARM URL for {{ tool_name }}"
       set_fact:
-        tool_url: "{{ _serve_my_kind_ensure_tools_arm64_urls[tool_name] }}" 
+        tool_url: "{{ _serve_my_kind_utils_arm64_urls[tool_name] }}" 
       when: host_arch == "aarch64"
     
     - name: "Download {{ tool_name }} from URL"

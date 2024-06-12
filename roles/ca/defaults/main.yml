@@ -1,5 +1,0 @@
-serve_my_kind_ca_private_ca_provisioner_name: "{{ serve_my_kind_cluster_name }}-provisioner"
-serve_my_kind_ca_private_ca_service_name: "{{ serve_my_kind_cluster_name }}-step-ca"
-serve_my_kind_ca_private_ca_service_fqdn: "{{ serve_my_kind_ca_private_ca_service_name }}.{{ serve_my_kind_certification_namespace }}.svc"
-
-serve_my_kind_ca_issuer_email: "example@domain.com"

@@ -31,7 +31,7 @@ nodes:
       kind: KubeProxyConfiguration
       mode: "ipvs"
       ipvs:
-          strictARP: {{ serve_my_kind_setup_cluster_enable_strict_arp }}
+          strictARP: {{ serve_my_kind_cluster_enable_strict_arp }}
 
     extraPortMappings:
     - containerPort: 80
@@ -47,7 +47,7 @@ nodes:
         containerPath: /opt/ca-certificates/root-ca.pem
         readOnly: true
 
-{% for index in range(serve_my_kind_setup_cluster_normal_workers) %}
+{% for index in range(serve_my_kind_cluster_normal_workers) %}
 
   - role: "worker"
     kubeadmConfigPatches:
@@ -63,9 +63,9 @@ nodes:
 
 {% endfor %}
 
-{% if serve_my_kind_setup_cluster_special_nodes | length > 0 %}
+{% if serve_my_kind_cluster_special_nodes | length > 0 %}
 
-{% for node in serve_my_kind_setup_cluster_special_nodes %}
+{% for node in serve_my_kind_cluster_special_nodes %}
 
 {% set nodes = 1 %}
 {% if node.amount is defined %}
