@@ -75,7 +75,6 @@ Below is a list of variables used in the Ansible playbook. These variables can b
 | `serve_my_kind_cluster_name`              | Name of the Kubernetes cluster                         | `"cluster-local"`                                             |
 | `serve_my_kind_kubeconfig_path`           | Path to the kubeconfig file                            | `"{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"` |
 | `serve_my_kind_manifests_and_configs_path`| Directory where manifests and configurations are stored| `"/tmp"`                                                    |
-| `serve_my_kind_purge_failed_deployments`  | Boolean to purge failed deployments automatically      | `true`                                                      |
 | `serve_my_kind_networking_namespace`      | Namespace for networking components                    | `"kube-networking"`                                         |
 | `serve_my_kind_network`                   | Name for the network associated with the cluster       | `"{{ serve_my_kind_cluster_name }}-net"`                    |
 | `serve_my_kind_network_cidr`              | CIDR block for the cluster network                     | `"172.30.0.0/16"`                                           |
