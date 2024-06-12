@@ -66,7 +66,59 @@ To remove the cluster and other assets on host machine (like certificates with t
 
 ## Variables
 
-**WIP**
+Below is a list of variables used in the Ansible playbook. These variables can be customized to suit your setup:
+
+* `serve_my_kind_cluster_name` - Name of the Kubernetes cluster (default: `"cluster-dev"`).
+
+* `serve_my_kind_kubeconfig_path` - Path to the kubeconfig file (default: `"{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"`).
+
+* `serve_my_kind_manifests_and_configs_path` - Directory where manifests and configurations are stored (default: `"/tmp"`).
+
+* `serve_my_kind_purge_failed_deployments` - Boolean to purge failed deployments automatically (default: `true`).
+
+* `serve_my_kind_networking_namespace` - Namespace for networking components (default: `"kube-networking"`).
+
+* `serve_my_kind_network` - Name for the network associated with the cluster (default: `"{{ serve_my_kind_cluster_name }}-net"`).
+
+* `serve_my_kind_network_cidr` - CIDR block for the cluster network (default: `"172.30.0.0/16"`).
+
+* `serve_my_kind_default_ingress_class` - Default ingress class to use for the cluster (default: `"nginx"`).
+
+* `serve_my_kind_configure_dns` - Boolean to enable DNS configuration for the cluster (default: `true`).
+
+* `serve_my_kind_certification_namespace` - Namespace for certification management (default: `"kube-certs"`).
+
+* `serve_my_kind_host_certificates_dir` - Directory for storing host certificates (default: `"/etc/ssl/certs"`).
+
+* `serve_my_kind_ca_issuer_name` - Name of the Certificate Authority (CA) issuer (default: `"{{ serve_my_kind_cluster_name }}-ca"`).
+
+* `serve_my_kind_certificate_days_validity` - Number of days the certificates are valid (default: `365`).
+
+* `serve_my_kind_hubble_enabled` - Boolean to enable Hubble observability (default: `true`).
+
+* `serve_my_kind_hubble_relay_enabled` - Boolean to enable Hubble relay (default: `true`).
+
+* `serve_my_kind_hubble_ui_enabled` - Boolean to enable Hubble UI (default: `true`).
+
+* `serve_my_kind_hubble_metrics_enabled` - List of Hubble metrics to enable. Defaults are:
+  - `"dns"`
+  - `"drop"`
+  - `"tcp"`
+  - `"flow"`
+  - `"icmp"`
+  - `"http"`
+
+* `serve_my_kind_cluster_normal_workers` - Number of normal worker nodes in the cluster (default: `2`).
+
+* `serve_my_kind_cluster_special_nodes` - List of special nodes configurations (default: `[]`).
+
+* `serve_my_kind_cluster_enable_strict_arp` - Boolean to enable strict ARP mode in the cluster (default: `true`).
+
+* `serve_my_kind_dns_network_manager_install` - Boolean to install NetworkManager if not present (default: `true`).
+
+* `serve_my_kind_dns_dnsmasq_install` - Boolean to install dnsmasq if not present (default: `true`).
+
+* `serve_my_kind_dns_enable_coredns_logging` - Boolean to enable CoreDNS logging (default: `true`).
 
 ### Internal variables
 
