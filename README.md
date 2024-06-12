@@ -72,7 +72,7 @@ Below is a list of variables used in the Ansible playbook. These variables can b
 
 | Variable Name                             | Description                                            | Default Value                                              |
 |-------------------------------------------|--------------------------------------------------------|------------------------------------------------------------|
-| `serve_my_kind_cluster_name`              | Name of the Kubernetes cluster                         | `"cluster-dev"`                                             |
+| `serve_my_kind_cluster_name`              | Name of the Kubernetes cluster                         | `"cluster-local"`                                             |
 | `serve_my_kind_kubeconfig_path`           | Path to the kubeconfig file                            | `"{{ lookup('ansible.builtin.env', 'HOME') }}/.kube/config"` |
 | `serve_my_kind_manifests_and_configs_path`| Directory where manifests and configurations are stored| `"/tmp"`                                                    |
 | `serve_my_kind_purge_failed_deployments`  | Boolean to purge failed deployments automatically      | `true`                                                      |
