@@ -1,6 +1,11 @@
 # ServeMyKind - Kind local cluster with NGINX ingress controller and DNS configuration
 
-<img src='.github/assets/SmK.svg>
+<img
+    src='.github/assets/SmK.svg'
+    alt='Serve My Kind logo'
+    width='200'
+    style='display: block; margin: 0 auto;'
+/>
 
 This Ansible playbook is designed to deploy a local Kind cluster with NGINX ingress controller and DNS configuration which allows to resolve the services by their FQDNs from the perspective of the host machine.
 
