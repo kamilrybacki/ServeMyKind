@@ -11,4 +11,8 @@
         src: "{{ serve_my_kind_manifests_and_configs_path }}/hubble-ingress.yaml"
         state: "present"
         wait: true
+    
+    - name: "Print the FQDN for Hubble UI"
+      debug:
+        msg: "https://hubble-ui.{{ serve_my_kind_cluster_domain }}"
   when: serve_my_kind_hubble_enabled
