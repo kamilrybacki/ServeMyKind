@@ -198,7 +198,7 @@ spec:
 
 After applying the above manifest, the service will be accessible via the host machine's browser at `https://example.service.cluster.local`, as seen in the picture below:
 
-![Example of Ingress resource](.github/assets/example-ingress.png)
+![Example of Ingress resource](.github/assets/example_ingress.png)
 
 ## Resources
 
